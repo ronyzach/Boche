@@ -317,7 +317,7 @@
       '<div class="code-panel"><div class="code-label">Enter the 4-digit OTP sent to your mobile</div>' +
       '<div class="code-row"><div class="code4" id="code4">' + [0, 1, 2, 3].map(function (i) { return '<input inputmode="numeric" maxlength="1" aria-label="Venue code digit ' + (i + 1) + '">'; }).join('') + '</div>' +
       '<button class="btn btn-gold btn-sm" id="codeGo" data-act="codeEnter" disabled>Enter</button></div></div></div></div>' +
-      '<div class="sec" style="margin-top:8px"><div class="sec-h"><h3>Boche family</h3></div><div class="pad"><div class="launch">' +
+      '<div class="sec home-fam"><div class="sec-h"><h3>Boche family</h3></div><div class="pad"><div class="launch">' +
       BC_BUSINESSES.map(function (b) {
         return b.live
           ? '<button class="launch-item" data-act="openApp" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 34) + '</span><b>' + esc(b.name) + '</b></button>'
