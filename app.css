@@ -599,3 +599,52 @@ textarea.input { height: 84px; padding: 12px 16px; resize: none; }
 .mback .code4 { gap: 5px; }
 .mback .code4 input { height: 30px; font-size: 15px; border-radius: 8px; padding: 0; }
 .mback .btn { height: 30px; width: 100%; margin-top: 7px; font-size: 12px; border-radius: 9px; }
+
+/* Home: spread content evenly on tall phones; on short screens the base margins hold */
+.home-wrap { min-height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+.home-wrap > .pad:last-child { padding-bottom: 6px; }
+.home-head { padding: 12px 16px 10px; }
+.launch + .promo { margin-top: 0; }
+.home-fam { margin-top: 10px; }
+
+/* ============================================================
+   UI audit pass
+   ============================================================ */
+/* Sticky action bars: solid backing so content never shows through */
+.sticky-cta { margin-top: 0; padding-top: 28px; background: linear-gradient(180deg, rgba(251,247,238,0) 0, var(--gold-bg) 26px, var(--gold-bg) 100%); }
+
+/* Business points hero */
+.pts-hero .row { gap: 10px; }
+.pts-hero .btn.btn-sm { height: 36px; padding: 0 12px; font-size: 12px; white-space: nowrap; }
+.pts-hero .s { font-size: 14px; font-weight: 600; }
+
+/* Child-app signed-in bar */
+.ca-bar { align-items: flex-start; }
+.ca-bar > span { flex: 1; line-height: 1.4; }
+.ca-bar .ic { margin-top: 2px; }
+
+/* Explore: compact venue cards */
+.pubcard .pub-hero { height: 84px; }
+.pubcard .pub-hero .pub-city { font-size: 21px; }
+.pubcard { margin-bottom: 12px; }
+.detail-hero { height: 190px !important; }
+
+/* Welcome: breathing room between wordmark and cards */
+.wl-cards { margin: 26px 0 22px; }
+
+/* Home on tall phones: tiles and promo grow a little instead of leaving gaps */
+.launch-item:not(.soon-t) { min-height: clamp(70px, 9vh, 96px); }
+.promo { height: clamp(62px, 8vh, 80px); }
+
+/* Touch feedback, keyboard focus, reduced motion */
+.biz-tile:active, .pubcard:active, .li:active, .offer-mini:active, .chip:active, .iconbtn:active { transform: scale(.98); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.input:focus-visible, .phone-field input:focus-visible, .otp input:focus-visible, .code4 input:focus-visible { outline: none; }
+@media (prefers-reduced-motion: reduce) {
+  .mcard::after, .sc-line, .promo-slide, .flip-inner, .spinner, .steps li.active .st { animation: none !important; transition: none !important; }
+}
+
+/* Home: header stays with the card; spare height is shared between the lower groups */
+.home-wrap { justify-content: flex-start; }
+.home-wrap > .home-fam { margin-top: auto; padding-top: 14px; }
+.home-wrap > .pad:last-child { margin-top: auto; padding-top: 14px; padding-bottom: 10px; }

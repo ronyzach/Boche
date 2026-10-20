@@ -311,7 +311,7 @@
 
   /* ----- Home (hub): flip card + business icons ----- */
   SCREENS.home = function () {
-    return '<div class="home-head"><div class="hh-left"><div class="avatar">' + initials(BC_MEMBER.name) + '</div>' +
+    return '<div class="home-wrap"><div class="home-head"><div class="hh-left"><div class="avatar">' + initials(BC_MEMBER.name) + '</div>' +
       '<div><div class="hh-greet">' + greeting() + '</div><div class="hh-name">' + esc(BC_MEMBER.firstName) + '</div></div></div>' +
       '<button class="iconbtn" data-act="notifs" aria-label="Notifications">' + ic('bell') + '<span class="dot"></span></button></div>' +
       '<div class="pad"><div class="flip" id="flip" data-act="flip"><div class="flip-inner"><div class="face front">' + cardFront() + '</div><div class="face back">' + cardBack() + '</div></div></div>' +
@@ -321,8 +321,8 @@
         return b.live
           ? '<button class="launch-item" data-act="openApp" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 34) + '</span><b>' + esc(b.name) + '</b></button>'
           : '<button class="launch-item soon-t" data-act="soonBiz" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 22) + '</span><b>' + esc(b.name) + '</b><span class="soon-tag">soon</span></button>';
-      }).join('') + '</div>' +
-      '<div class="promo" id="promo" data-go="offers">' + BC_PROMOS.map(function (p, i) {
+      }).join('') + '</div></div></div>' +
+      '<div class="pad"><div class="promo" id="promo" data-go="offers">' + BC_PROMOS.map(function (p, i) {
         var b = biz(p.biz);
         return '<div class="promo-slide' + (i === 0 ? ' on' : '') + '"><span class="promo-ic">' + ic(b.icon, 22) + '</span><div class="li-main"><div class="promo-t">' + esc(p.title) + '</div><div class="promo-s">' + esc(p.text) + '</div></div></div>';
       }).join('') + '<div class="promo-dots">' + BC_PROMOS.map(function (p, i) { return '<i' + (i === 0 ? ' class="on"' : '') + '></i>'; }).join('') + '</div></div></div></div>';
@@ -429,8 +429,8 @@
     }
     return topbar(b.name, 'home') + '<div class="pad">' +
       '<div class="pts-hero"><div class="k">' + esc(b.short) + ' points</div><div class="row"><div><div class="v">' + num(pts) + '</div>' +
-      '<div class="s">Worth ' + inr(pts * b.rupeeValue) + ' at ' + esc(b.name) + '</div></div>' +
-      '<span class="btn btn-sm" style="background:rgba(255,255,255,.55);color:#2E2108">' + ic('crown', 16) + esc(t.name) + ' · ' + b.earn[t.id] + ' pts/₹100</span></div></div>' +
+      '<div class="s">Worth ' + inr(pts * b.rupeeValue) + '</div></div>' +
+      '<span class="btn btn-sm" style="background:rgba(255,255,255,.55);color:#2E2108">' + ic('crown', 16) + esc(t.name) + ' · ' + b.earn[t.id] + ' pts per ₹100</span></div></div>' +
       (b.expiring && b.expiring.points ? '<div class="alert">' + ic('clock', 18) + '<span><b>' + num(b.expiring.points) + ' points</b> expire on ' + esc(b.expiring.date) + '.</span></div>' : '') +
       '<p class="fine">Points are earned and redeemed only at ' + esc(b.name) + ' · min ' + num(b.minRedeem) + ' pts · valid ' + b.expiryMonths + ' months.</p>' +
       '<button class="btn btn-gold mt16" data-act="openApp" data-id="' + b.id + '">' + ic('open', 18) + ' Open ' + esc(b.appName) + '</button>' +
@@ -496,7 +496,7 @@
   SCREENS.app = function (id) {
     var b = biz(id); if (!b || !b.live) return SCREENS.home();
     return '<div class="childapp"><div class="ca-head"><span class="ca-ic">' + ic(b.icon, 22) + '</span><div><div class="ca-t">' + esc(b.name) + '</div><div class="ca-s">' + esc(b.appName) + '</div></div></div>' +
-      '<div class="ca-bar">' + ic('shield', 15) + ' Signed in as <b>' + esc(BC_MEMBER.name) + '</b> · +91 ' + esc(BC_MEMBER.mobile) + ' · via Boche.Club</div></div>' +
+      '<div class="ca-bar">' + ic('shield', 15) + '<span>Signed in as <b>' + esc(BC_MEMBER.name) + '</b> · +91 ' + esc(BC_MEMBER.mobile) + ' · via Boche.Club</span></div></div>' +
       '<div class="pad mt16"><div class="list">' + b.appMenu.map(function (m) {
         return '<button class="li" data-act="childItem" data-id="' + esc(m.title) + '"><span class="li-ic">' + ic(m.icon, 18) + '</span><div class="li-main"><div class="li-t">' + esc(m.title) + '</div><div class="li-s">' + esc(m.sub) + '</div></div><span class="li-chev">' + ic('chev', 18) + '</span></button>';
       }).join('') + '</div>' +
