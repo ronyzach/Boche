@@ -321,7 +321,7 @@
       BC_BUSINESSES.map(function (b) {
         return b.live
           ? '<button class="launch-item" data-act="openApp" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 34) + '</span><b>' + esc(b.name) + '</b></button>'
-          : '<button class="launch-item soon-t" data-act="soonBiz" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 34) + '</span><b>' + esc(b.name) + '</b><span class="soon-tag">Soon</span></button>';
+          : '<button class="launch-item soon-t" data-act="soonBiz" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 34) + '</span><b>' + esc(b.name) + '</b></button>';
       }).join('') + '</div></div></div>';
   };
   function smsCheck() {
