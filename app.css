@@ -570,3 +570,4 @@ textarea.input { height: 84px; padding: 12px 16px; resize: none; }
 .home-head { padding: 10px 16px 8px; }
 .launch { gap: 8px; }
 .launch + .promo { margin-top: 8px; }
+.launch-item.soon-t > .soon-tag { font-size: 6px; padding: 1px 4px; line-height: 1.3; }
