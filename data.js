@@ -44,7 +44,7 @@ var BC_BUSINESSES = [
       { icon: 'calendar', title: 'Reservations', sub: 'Your table bookings' },
       { icon: 'receipt', title: 'My bills', sub: 'Past bills at Boche pubs' }
     ] },
-  { id: 'resort', name: 'Boche 1000 Acre', short: '1000 Acre', icon: 'bed', live: true,
+  { id: 'resort', name: 'Boche 1000 Acre', short: '1000 Acre', icon: 'mountain', live: true,
     blurb: 'Resort stays, restaurant & toddy shop', appName: 'Hospitality App',
     earn: { classic: 2, gold: 3, diamond: 5 },
     rupeeValue: 0.5, minRedeem: 1000, expiryMonths: 18, expiring: null,
