@@ -149,9 +149,11 @@
     return '<div class="mcard mback">' +
       '<div class="qrbox"><div id="qrSvg"></div><span class="qr-logo">B</span></div>' +
       '<div class="mb-info"><div class="mc-label">Member ID</div><div class="mb-id">' + esc(BC_MEMBER.id) + '</div>' +
-      '<div class="mb-tier">' + esc(curTier().name) + ' member</div>' +
-      '<div class="mb-timer"><svg class="ring" viewBox="0 0 26 26"><circle class="bg" cx="13" cy="13" r="11"/><circle class="fg" id="qrRing" cx="13" cy="13" r="11" stroke-dasharray="' + C + '" stroke-dashoffset="0"/></svg><span><span id="qrCount">30</span>s</span></div>' +
-      '<div class="mb-note">Live code · refreshes every 30 s</div></div></div>';
+      '<div class="mb-row"><span class="mb-tier">' + esc(curTier().name) + ' member</span>' +
+      '<span class="mb-timer"><svg class="ring" viewBox="0 0 26 26"><circle class="bg" cx="13" cy="13" r="11"/><circle class="fg" id="qrRing" cx="13" cy="13" r="11" stroke-dasharray="' + C + '" stroke-dashoffset="0"/></svg><span><span id="qrCount">30</span>s</span></span></div>' +
+      '<div class="mb-otp"><div class="mc-label">Venue OTP sent to your mobile</div>' +
+      '<div class="code4" id="code4" data-act="noop">' + [0, 1, 2, 3].map(function (i) { return '<input inputmode="numeric" maxlength="1" aria-label="OTP digit ' + (i + 1) + '">'; }).join('') + '</div>' +
+      '<button class="btn btn-gold" id="codeGo" data-act="codeEnter" disabled>Enter</button></div></div></div>';
   }
   function eventRow(e) {
     var d = new Date(e.date + 'T00:00:00'), o = outlet(e.outlet);
@@ -313,10 +315,7 @@
       '<div><div class="hh-greet">' + greeting() + '</div><div class="hh-name">' + esc(BC_MEMBER.firstName) + '</div></div></div>' +
       '<button class="iconbtn" data-act="notifs" aria-label="Notifications">' + ic('bell') + '<span class="dot"></span></button></div>' +
       '<div class="pad"><div class="flip" id="flip" data-act="flip"><div class="flip-inner"><div class="face front">' + cardFront() + '</div><div class="face back">' + cardBack() + '</div></div></div>' +
-      '<div class="flip-below"><p class="hint hint-front">Tap the card to flip it · show the QR at any Boche venue</p>' +
-      '<div class="code-panel"><div class="code-label">Enter the 4-digit OTP sent to your mobile</div>' +
-      '<div class="code-row"><div class="code4" id="code4">' + [0, 1, 2, 3].map(function (i) { return '<input inputmode="numeric" maxlength="1" aria-label="Venue code digit ' + (i + 1) + '">'; }).join('') + '</div>' +
-      '<button class="btn btn-gold btn-sm" id="codeGo" data-act="codeEnter" disabled>Enter</button></div></div></div></div>' +
+      '<p class="hint hint-below">Tap the card to flip it · show the QR at any Boche venue</p></div>' +
       '<div class="sec home-fam"><div class="sec-h"><h3>Boche family</h3></div><div class="pad"><div class="launch">' +
       BC_BUSINESSES.map(function (b) {
         return b.live
@@ -334,13 +333,7 @@
     ui.seenOtp = p.ts;
     toast('SMS · ' + p.code + ' is your Boche.Club check-in OTP for ' + outlet(p.outlet).name, 7000);
   }
-  AFTER.home = function () {
-    startQr(); smsCheck();
-    var slides = document.querySelectorAll('.promo-slide'), dots = document.querySelectorAll('.promo-dots i'), cur = 0;
-    if (slides.length > 1) timers.push(setInterval(function () {
-      slides[cur].classList.remove('on'); dots[cur].classList.remove('on');
-      cur = (cur + 1) % slides.length; slides[cur].classList.add('on'); dots[cur].classList.add('on');
-    }, BC_PROMO_CFG.rotateMs));
+  function wireCodeEntry() {
     var wrap = $('code4'), ins = wrap.querySelectorAll('input'), btn = $('codeGo');
     function code() { return Array.prototype.map.call(ins, function (x) { return x.value; }).join(''); }
     Array.prototype.forEach.call(ins, function (inp, i) {
@@ -355,6 +348,14 @@
         if (e.key === 'Enter' && code().length === 4) ACTIONS.codeEnter();
       });
     });
+  }
+  AFTER.home = function () {
+    startQr(); smsCheck(); wireCodeEntry();
+    var slides = document.querySelectorAll('.promo-slide'), dots = document.querySelectorAll('.promo-dots i'), cur = 0;
+    if (slides.length > 1) timers.push(setInterval(function () {
+      slides[cur].classList.remove('on'); dots[cur].classList.remove('on');
+      cur = (cur + 1) % slides.length; slides[cur].classList.add('on'); dots[cur].classList.add('on');
+    }, BC_PROMO_CFG.rotateMs));
   };
 
   /* ----- Card ----- */
@@ -390,7 +391,7 @@
     }
     draw(); $('qrCount').textContent = left; timers.push(setInterval(tick, 1000));
   }
-  AFTER.card = function () { startQr(); };
+  AFTER.card = function () { startQr(); wireCodeEntry(); };
 
   /* ----- Explore (all outlets) ----- */
   SCREENS.explore = function () {
@@ -787,6 +788,7 @@
         '<p class="fine">' + (ok ? esc(o.checkinLabel) + ' recorded at ' + esc(timeLabel()) + (o.ageGate ? ' · age verified for ' + need + '+' : '') + '. Earn ' + esc(b.short) + ' points on your bill.' : 'Your verified age does not meet the ' + need + '+ rule in ' + esc(BC_STATES[o.state].name) + '.') + '</p>' +
         '<button class="btn btn-gold mt16" data-act="closeSheetRender">' + (ok ? 'Done' : 'Close') + '</button></div>');
     },
+    noop: function () {},
     childItem: function (el) { toast(el.dataset.id + ' opens in the business app'); },
     soonBiz: function (el) { toast(biz(el.dataset.id).name + ' joins Boche.Club soon'); },
     notifs: function () { toast('You’re all caught up'); },

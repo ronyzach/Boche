@@ -585,3 +585,17 @@ textarea.input { height: 84px; padding: 12px 16px; resize: none; }
 .home-fam { margin-top: 12px; }
 .promo-slide { transition: opacity .3s, transform .3s; }
 .promo-slide.on { transition-delay: .3s; }
+
+/* OTP entry lives inside the card's QR side */
+.hint-below { margin: 10px 0 0; }
+.mback { gap: 14px; padding: 14px; }
+.mback .mb-id { font-size: 14px; margin-top: 1px; }
+.mb-row { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+.mb-row .mb-timer { margin-top: 0; font-size: 12px; gap: 5px; }
+.mb-row .ring { width: 20px; height: 20px; }
+.mb-row .mb-tier { font-size: 12px; margin-top: 0; }
+.mb-otp { margin-top: 12px; }
+.mb-otp .mc-label { font-size: 8px; letter-spacing: .1em; margin-bottom: 5px; }
+.mback .code4 { gap: 5px; }
+.mback .code4 input { height: 30px; font-size: 15px; border-radius: 8px; padding: 0; }
+.mback .btn { height: 30px; width: 100%; margin-top: 7px; font-size: 12px; border-radius: 9px; }
