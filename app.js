@@ -313,7 +313,9 @@
       '<div><div class="hh-greet">' + greeting() + '</div><div class="hh-name">' + esc(BC_MEMBER.firstName) + '</div></div></div>' +
       '<button class="iconbtn" data-act="notifs" aria-label="Notifications">' + ic('bell') + '<span class="dot"></span></button></div>' +
       '<div class="pad"><div class="flip" id="flip" data-act="flip"><div class="flip-inner"><div class="face front">' + cardFront() + '</div><div class="face back">' + cardBack() + '</div></div></div>' +
-      '<p class="hint">Tap the card to flip it · show the QR at any Boche venue</p></div>' +
+      '<div class="code-label">Check in with the venue’s 4-digit code</div>' +
+      '<div class="code-row"><div class="code4" id="code4">' + [0, 1, 2, 3].map(function (i) { return '<input inputmode="numeric" maxlength="1" aria-label="Venue code digit ' + (i + 1) + '">'; }).join('') + '</div>' +
+      '<button class="btn btn-gold btn-sm" id="codeGo" data-act="codeEnter" disabled>Enter</button></div></div>' +
       '<div class="sec" style="margin-top:8px"><div class="sec-h"><h3>Boche family</h3></div><div class="pad"><div class="launch">' +
       BC_BUSINESSES.map(function (b) {
         return b.live
@@ -321,7 +323,23 @@
           : '<button class="launch-item soon-t" data-act="soonBiz" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 26) + '</span><b>' + esc(b.name) + '</b><span class="soon-tag">Soon</span></button>';
       }).join('') + '</div></div></div>';
   };
-  AFTER.home = function () { startQr(); };
+  AFTER.home = function () {
+    startQr();
+    var wrap = $('code4'), ins = wrap.querySelectorAll('input'), btn = $('codeGo');
+    function code() { return Array.prototype.map.call(ins, function (x) { return x.value; }).join(''); }
+    Array.prototype.forEach.call(ins, function (inp, i) {
+      inp.addEventListener('input', function () {
+        var v = inp.value.replace(/\D/g, '');
+        if (v.length > 1) { v.split('').slice(0, 4).forEach(function (ch, k) { if (ins[k]) ins[k].value = ch; }); ins[Math.min(3, v.length - 1)].focus(); }
+        else { inp.value = v; if (v && ins[i + 1]) ins[i + 1].focus(); }
+        wrap.classList.remove('bad'); btn.disabled = code().length !== 4;
+      });
+      inp.addEventListener('keydown', function (e) {
+        if (e.key === 'Backspace' && !inp.value && ins[i - 1]) ins[i - 1].focus();
+        if (e.key === 'Enter' && code().length === 4) ACTIONS.codeEnter();
+      });
+    });
+  };
 
   /* ----- Card ----- */
   SCREENS.card = function () {
@@ -596,6 +614,7 @@
     var st = staff(), o = staffOutlet(), log = S.staffLog.filter(function (l) { return l.biz === st.biz; }).slice(0, 6);
     return staffHead() + '<div class="pad"><div class="field-l" style="margin-top:16px">Working at</div>' + outletChips() +
       '<div class="rule-note mt12">' + ic('shield', 16) + '<span>' + (o.ageGate ? esc(o.name) + ' requires age <b>' + BC_STATES[o.state].drinkingAge + '+</b> (' + esc(BC_STATES[o.state].name) + ').' : esc(o.name) + ' has no age restriction.') + '</span></div>' +
+      '<div class="surface mt16" style="padding:14px 16px;display:flex;align-items:center;gap:14px"><div class="li-main"><div class="stat-k">Venue check-in code</div><div class="li-s">Members can enter this in the app to self check-in</div></div><div class="vcode">' + esc(o.checkinCode) + '</div></div>' +
       '<div class="scanner mt16"><div class="sc-frame"><i></i><span class="sc-line"></span></div><p>' + esc(BC_STAFF_UI.scanHint) + '</p></div>' +
       '<div class="field-l">Demo: simulate scanning a member</div><div class="list">' + BC_MEMBERS.map(function (m) {
         var t = tierOfMember(m.id);
@@ -721,6 +740,25 @@
       openSheet('<h3>Opening ' + esc(b.appName) + '</h3><p class="lead">Single sign-on with your Boche.Club identity</p><ul class="steps" id="ssoSteps">' +
         BC_SSO_STEPS.map(function (s) { return '<li><span class="st"></span>' + esc(s.replace('{app}', b.appName)) + '</li>'; }).join('') + '</ul>');
       runSteps($('ssoSteps').children, function () { ui.sheetLock = false; closeSheet(); go('app/' + b.id); }, 600);
+    },
+    codeEnter: function () {
+      var wrap = $('code4'), ins = wrap.querySelectorAll('input');
+      var code = Array.prototype.map.call(ins, function (x) { return x.value; }).join('');
+      var o = BC_OUTLETS.filter(function (x) { return x.checkinCode === code; })[0];
+      if (!o) {
+        wrap.classList.add('bad'); Array.prototype.forEach.call(ins, function (x) { x.value = ''; }); ins[0].focus(); $('codeGo').disabled = true;
+        toast('That code isn’t valid. Ask the venue staff for the current code.'); return;
+      }
+      var ok = eligible(o), b = biz(o.biz), need = o.ageGate ? BC_STATES[o.state].drinkingAge : null;
+      if (ok) {
+        dyn(BC_MEMBER.id).checkins.unshift({ outlet: o.id, date: todayLabel(), time: timeLabel() });
+        S.staffLog.unshift({ biz: o.biz, icon: 'qr', text: o.checkinLabel + ' · self check-in (venue code)', member: BC_MEMBER.name, outlet: o.city + ' ' + o.kind, time: timeLabel() });
+        save();
+      }
+      openSheet('<div class="center"><div class="big-check" style="' + (ok ? '' : 'background:var(--err);color:#fff;box-shadow:none') + '">' + ic(ok ? 'check' : 'x', 34) + '</div>' +
+        '<h3>' + (ok ? 'You’re checked in' : 'Entry not allowed') + '</h3><p class="lead">' + esc(o.name) + '</p>' +
+        '<p class="fine">' + (ok ? esc(o.checkinLabel) + ' recorded at ' + esc(timeLabel()) + (o.ageGate ? ' · age verified for ' + need + '+' : '') + '. Earn ' + esc(b.short) + ' points on your bill.' : 'Your verified age does not meet the ' + need + '+ rule in ' + esc(BC_STATES[o.state].name) + '.') + '</p>' +
+        '<button class="btn btn-gold mt16" data-act="closeSheetRender">' + (ok ? 'Done' : 'Close') + '</button></div>');
     },
     childItem: function (el) { toast(el.dataset.id + ' opens in the business app'); },
     soonBiz: function (el) { toast(biz(el.dataset.id).name + ' joins Boche.Club soon'); },

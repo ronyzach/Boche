@@ -512,3 +512,15 @@ textarea.input { height: 84px; padding: 12px 16px; resize: none; }
   .launch-ic { width: 40px; height: 40px; border-radius: 13px; }
   .launch-item b { font-size: 11px; }
 }
+
+/* Venue code entry (Home) */
+.code-label { font-size: 12px; font-weight: 600; color: var(--muted); text-align: center; margin: 12px 0 8px; }
+.code-row { display: flex; gap: 10px; align-items: center; }
+.code4 { display: flex; gap: 8px; flex: 1; }
+.code4 input { flex: 1; width: 0; height: 46px; text-align: center; font-size: 20px; font-weight: 700; border-radius: 12px; border: 1.5px solid var(--line); background: #fff; outline: none; }
+.code4 input:focus { border-color: var(--gold); }
+.code4.bad input { border-color: var(--err); animation: shake .3s; }
+.code-row .btn { height: 46px; padding: 0 22px; }
+.vcode { font-family: var(--serif); font-size: 30px; font-weight: 700; letter-spacing: .12em; color: var(--gold-dd); }
+.launch-item { min-height: 70px; padding-top: 9px; padding-bottom: 9px; }
+.launch { gap: 10px; }
