@@ -1,7 +1,7 @@
 {
-  "name": "BocheClub",
-  "short_name": "BocheClub",
-  "description": "Membership and rewards for BocheClub pubs",
+  "name": "Boche.Club",
+  "short_name": "Boche.Club",
+  "description": "One membership across the Boche family",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
