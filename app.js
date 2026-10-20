@@ -321,8 +321,12 @@
       BC_BUSINESSES.map(function (b) {
         return b.live
           ? '<button class="launch-item" data-act="openApp" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 34) + '</span><b>' + esc(b.name) + '</b></button>'
-          : '<button class="launch-item soon-t" data-act="soonBiz" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 34) + '</span><b>' + esc(b.name) + '</b></button>';
-      }).join('') + '</div></div></div>';
+          : '<button class="launch-item soon-t" data-act="soonBiz" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 22) + '</span><b>' + esc(b.name) + '</b><span class="soon-tag">soon</span></button>';
+      }).join('') + '</div>' +
+      '<div class="promo" id="promo" data-go="offers">' + BC_PROMOS.map(function (p, i) {
+        var b = biz(p.biz);
+        return '<div class="promo-slide' + (i === 0 ? ' on' : '') + '"><span class="promo-ic">' + ic(b.icon, 22) + '</span><div class="li-main"><div class="promo-t">' + esc(p.title) + '</div><div class="promo-s">' + esc(p.text) + '</div></div></div>';
+      }).join('') + '<div class="promo-dots">' + BC_PROMOS.map(function (p, i) { return '<i' + (i === 0 ? ' class="on"' : '') + '></i>'; }).join('') + '</div></div></div></div>';
   };
   function smsCheck() {
     var p = S.pendingOtp;
@@ -332,6 +336,11 @@
   }
   AFTER.home = function () {
     startQr(); smsCheck();
+    var slides = document.querySelectorAll('.promo-slide'), dots = document.querySelectorAll('.promo-dots i'), cur = 0;
+    if (slides.length > 1) timers.push(setInterval(function () {
+      slides[cur].classList.remove('on'); dots[cur].classList.remove('on');
+      cur = (cur + 1) % slides.length; slides[cur].classList.add('on'); dots[cur].classList.add('on');
+    }, BC_PROMO_CFG.rotateMs));
     var wrap = $('code4'), ins = wrap.querySelectorAll('input'), btn = $('codeGo');
     function code() { return Array.prototype.map.call(ins, function (x) { return x.value; }).join(''); }
     Array.prototype.forEach.call(ins, function (inp, i) {

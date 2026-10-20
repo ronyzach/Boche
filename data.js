@@ -217,3 +217,12 @@ var BC_STAFF_UI = {
   minBill: 100,
   otpValidMinutes: 5
 };
+
+/* Rotating promo banner on Home */
+var BC_PROMO_CFG = { rotateMs: 4500 };
+var BC_PROMOS = [
+  { biz: 'pub',    title: 'Pub Trail',            text: 'Visit 3 Boche pubs this month and earn 1,500 bonus points.' },
+  { biz: 'resort', title: 'Weekend stay bonus',   text: 'Stay two nights at 1000 Acre and earn 1,000 bonus points.' },
+  { biz: 'resort', title: 'Toddy & karimeen tasting', text: 'Complimentary for Gold and Diamond members, 4 – 7 PM.' },
+  { biz: 'pub',    title: 'Bring a friend',       text: 'Earn 500 points when a friend joins and makes a first visit.' }
+];
