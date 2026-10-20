@@ -314,7 +314,7 @@
       '<button class="iconbtn" data-act="notifs" aria-label="Notifications">' + ic('bell') + '<span class="dot"></span></button></div>' +
       '<div class="pad"><div class="flip" id="flip" data-act="flip"><div class="flip-inner"><div class="face front">' + cardFront() + '</div><div class="face back">' + cardBack() + '</div></div></div>' +
       '<div class="flip-below"><p class="hint hint-front">Tap the card to flip it · show the QR at any Boche venue</p>' +
-      '<div class="code-panel"><div class="code-label">Check in with the venue’s 4-digit code</div>' +
+      '<div class="code-panel"><div class="code-label">Enter the 4-digit OTP sent to your mobile</div>' +
       '<div class="code-row"><div class="code4" id="code4">' + [0, 1, 2, 3].map(function (i) { return '<input inputmode="numeric" maxlength="1" aria-label="Venue code digit ' + (i + 1) + '">'; }).join('') + '</div>' +
       '<button class="btn btn-gold btn-sm" id="codeGo" data-act="codeEnter" disabled>Enter</button></div></div></div></div>' +
       '<div class="sec" style="margin-top:8px"><div class="sec-h"><h3>Boche family</h3></div><div class="pad"><div class="launch">' +
@@ -324,8 +324,14 @@
           : '<button class="launch-item soon-t" data-act="soonBiz" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 26) + '</span><b>' + esc(b.name) + '</b><span class="soon-tag">Soon</span></button>';
       }).join('') + '</div></div></div>';
   };
+  function smsCheck() {
+    var p = S.pendingOtp;
+    if (!SES.authed || !p || p.memberId !== BC_MEMBER.id || p.status !== 'sent' || ui.seenOtp === p.ts) return;
+    ui.seenOtp = p.ts;
+    toast('SMS · ' + p.code + ' is your Boche.Club check-in OTP for ' + outlet(p.outlet).name, 7000);
+  }
   AFTER.home = function () {
-    startQr();
+    startQr(); smsCheck();
     var wrap = $('code4'), ins = wrap.querySelectorAll('input'), btn = $('codeGo');
     function code() { return Array.prototype.map.call(ins, function (x) { return x.value; }).join(''); }
     Array.prototype.forEach.call(ins, function (inp, i) {
@@ -615,7 +621,6 @@
     var st = staff(), o = staffOutlet(), log = S.staffLog.filter(function (l) { return l.biz === st.biz; }).slice(0, 6);
     return staffHead() + '<div class="pad"><div class="field-l" style="margin-top:16px">Working at</div>' + outletChips() +
       '<div class="rule-note mt12">' + ic('shield', 16) + '<span>' + (o.ageGate ? esc(o.name) + ' requires age <b>' + BC_STATES[o.state].drinkingAge + '+</b> (' + esc(BC_STATES[o.state].name) + ').' : esc(o.name) + ' has no age restriction.') + '</span></div>' +
-      '<div class="surface mt16" style="padding:14px 16px;display:flex;align-items:center;gap:14px"><div class="li-main"><div class="stat-k">Venue check-in code</div><div class="li-s">Members can enter this in the app to self check-in</div></div><div class="vcode">' + esc(o.checkinCode) + '</div></div>' +
       '<div class="scanner mt16"><div class="sc-frame"><i></i><span class="sc-line"></span></div><p>' + esc(BC_STAFF_UI.scanHint) + '</p></div>' +
       '<div class="field-l">Demo: simulate scanning a member</div><div class="list">' + BC_MEMBERS.map(function (m) {
         var t = tierOfMember(m.id);
@@ -634,7 +639,6 @@
     var m = memberOf(id); if (!m) return SCREENS.scan();
     var st = staff(), o = staffOutlet(), b = biz(st.biz), d = dyn(id), a = ageOf(m.dob), t = tierOfMember(id);
     var ok = eligible(o, id), need = o.ageGate ? BC_STATES[o.state].drinkingAge : null;
-    var checked = ui.checkedIn === id + o.id;
     var vs = d.vouchers.filter(function (v) { return v.biz === b.id && !v.used; });
     var h = topbar('Verify member', 'scan');
     h += '<div class="pad">' +
@@ -647,7 +651,18 @@
       '<div class="kv"><span>' + esc(b.short) + ' points</span><span>' + num(pointsOf(id, b.id)) + '</span></div>' +
       '<div class="kv"><span>Earn rate here</span><span>' + b.earn[t.id] + ' pts per ₹100</span></div></div>';
     if (ok) {
-      h += '<button class="btn ' + (checked ? 'btn-soft' : 'btn-gold') + ' mt16" data-act="checkin" data-id="' + m.id + '"' + (checked ? ' disabled' : '') + '>' + (checked ? ic('check', 18) + ' Checked in' : ic('qr', 18) + ' ' + esc(o.checkinLabel) + ' · check in') + '</button>';
+      var p = S.pendingOtp, mine = p && p.memberId === m.id && p.outlet === o.id;
+      if (mine && p.status === 'used') {
+        h += '<button class="btn btn-soft mt16" disabled>' + ic('check', 18) + ' Checked in · OTP verified</button>';
+      } else if (mine && p.status === 'sent') {
+        h += '<div class="surface mt16" style="padding:14px 16px"><div class="li-t">' + ic('phone', 16) + ' OTP sent to +91 ' + esc(m.mobile) + '</div>' +
+          '<div class="li-s">Waiting for ' + esc(m.firstName) + ' to enter it in the Boche.Club app · valid ' + BC_STAFF_UI.otpValidMinutes + ' min</div>' +
+          '<div class="demo-hint" style="margin-top:10px">Demo: the OTP is <b>' + esc(p.code) + '</b></div>' +
+          '<button class="btn btn-line btn-sm mt12" data-act="sendCheckinOtp" data-id="' + m.id + '">Resend OTP</button></div>';
+      } else {
+        h += '<button class="btn btn-gold mt16" data-act="sendCheckinOtp" data-id="' + m.id + '">' + ic('phone', 18) + ' Send check-in OTP · ' + esc(o.checkinLabel) + '</button>' +
+          '<p class="fine center">A 4-digit OTP goes to the member’s registered mobile.</p>';
+      }
       h += '<div class="field-l">Post a bill — credits ' + esc(b.short) + ' points</div>' +
         '<div class="inline-field"><div class="phone-field" style="flex:1"><span class="cc">₹</span><input id="billAmt" inputmode="numeric" maxlength="7" placeholder="Bill amount" value="' + esc(ui.billAmt) + '"></div>' +
         '<button class="btn btn-gold btn-sm" id="postBill" data-act="postBill" data-id="' + m.id + '" disabled>Post</button></div>' +
@@ -704,11 +719,11 @@
       if (!m) { $('lookErr').textContent = 'No Boche.Club member with this number.'; return; }
       go('verify/' + m.id);
     },
-    checkin: function (el) {
-      var m = memberOf(el.dataset.id), o = staffOutlet(), st = staff();
-      dyn(m.id).checkins.unshift({ outlet: o.id, date: todayLabel(), time: timeLabel() });
-      S.staffLog.unshift({ biz: st.biz, icon: 'qr', text: o.checkinLabel + ' · check-in', member: m.name, outlet: o.city + ' ' + o.kind, time: timeLabel() });
-      ui.checkedIn = m.id + o.id; save(); rerender(); toast(m.name + ' checked in');
+    sendCheckinOtp: function (el) {
+      var m = memberOf(el.dataset.id), o = staffOutlet();
+      var code = ''; for (var i = 0; i < 4; i++) code += Math.floor(Math.random() * 10);
+      S.pendingOtp = { memberId: m.id, outlet: o.id, code: code, ts: Date.now(), status: 'sent' };
+      save(); rerender(); toast('OTP sent to +91 ' + m.mobile);
     },
     postBill: function (el) {
       var m = memberOf(el.dataset.id), o = staffOutlet(), st = staff(), b = biz(st.biz), amt = +ui.billAmt;
@@ -745,17 +760,19 @@
     codeEnter: function () {
       var wrap = $('code4'), ins = wrap.querySelectorAll('input');
       var code = Array.prototype.map.call(ins, function (x) { return x.value; }).join('');
-      var o = BC_OUTLETS.filter(function (x) { return x.checkinCode === code; })[0];
-      if (!o) {
+      var p = S.pendingOtp;
+      var valid = p && p.memberId === BC_MEMBER.id && p.status === 'sent' && code === p.code && (Date.now() - p.ts) < BC_STAFF_UI.otpValidMinutes * 60000;
+      if (!valid) {
         wrap.classList.add('bad'); Array.prototype.forEach.call(ins, function (x) { x.value = ''; }); ins[0].focus(); $('codeGo').disabled = true;
-        toast('That code isn’t valid. Ask the venue staff for the current code.'); return;
+        toast('That OTP isn’t valid or has expired. Ask the venue to resend it.'); return;
       }
-      var ok = eligible(o), b = biz(o.biz), need = o.ageGate ? BC_STATES[o.state].drinkingAge : null;
+      var o = outlet(p.outlet), ok = eligible(o), b = biz(o.biz), need = o.ageGate ? BC_STATES[o.state].drinkingAge : null;
+      p.status = 'used';
       if (ok) {
         dyn(BC_MEMBER.id).checkins.unshift({ outlet: o.id, date: todayLabel(), time: timeLabel() });
-        S.staffLog.unshift({ biz: o.biz, icon: 'qr', text: o.checkinLabel + ' · self check-in (venue code)', member: BC_MEMBER.name, outlet: o.city + ' ' + o.kind, time: timeLabel() });
-        save();
+        S.staffLog.unshift({ biz: o.biz, icon: 'qr', text: o.checkinLabel + ' · check-in (OTP verified)', member: BC_MEMBER.name, outlet: o.city + ' ' + o.kind, time: timeLabel() });
       }
+      save();
       openSheet('<div class="center"><div class="big-check" style="' + (ok ? '' : 'background:var(--err);color:#fff;box-shadow:none') + '">' + ic(ok ? 'check' : 'x', 34) + '</div>' +
         '<h3>' + (ok ? 'You’re checked in' : 'Entry not allowed') + '</h3><p class="lead">' + esc(o.name) + '</p>' +
         '<p class="fine">' + (ok ? esc(o.checkinLabel) + ' recorded at ' + esc(timeLabel()) + (o.ageGate ? ' · age verified for ' + need + '+' : '') + '. Earn ' + esc(b.short) + ' points on your bill.' : 'Your verified age does not meet the ' + need + '+ rule in ' + esc(BC_STATES[o.state].name) + '.') + '</p>' +
@@ -894,9 +911,9 @@
     $('sheet').classList.remove('open'); $('sheetBackdrop').classList.remove('open');
   }
   var toastT;
-  function toast(msg) {
+  function toast(msg, ms) {
     var t = $('toast'); t.textContent = msg; t.classList.add('show');
-    clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove('show'); }, 2800);
+    clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove('show'); }, ms || 2800);
   }
 
   document.addEventListener('click', function (e) {
@@ -912,6 +929,7 @@
     if (e.key !== LS_KEY || !e.newValue) return;
     try { S = JSON.parse(e.newValue); } catch (x) { return; }
     var ae = document.activeElement;
+    smsCheck();
     if (ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName)) return;
     rerender();
   });
