@@ -313,9 +313,10 @@
       '<div><div class="hh-greet">' + greeting() + '</div><div class="hh-name">' + esc(BC_MEMBER.firstName) + '</div></div></div>' +
       '<button class="iconbtn" data-act="notifs" aria-label="Notifications">' + ic('bell') + '<span class="dot"></span></button></div>' +
       '<div class="pad"><div class="flip" id="flip" data-act="flip"><div class="flip-inner"><div class="face front">' + cardFront() + '</div><div class="face back">' + cardBack() + '</div></div></div>' +
-      '<div class="code-label">Check in with the venue’s 4-digit code</div>' +
+      '<div class="flip-below"><p class="hint hint-front">Tap the card to flip it · show the QR at any Boche venue</p>' +
+      '<div class="code-panel"><div class="code-label">Check in with the venue’s 4-digit code</div>' +
       '<div class="code-row"><div class="code4" id="code4">' + [0, 1, 2, 3].map(function (i) { return '<input inputmode="numeric" maxlength="1" aria-label="Venue code digit ' + (i + 1) + '">'; }).join('') + '</div>' +
-      '<button class="btn btn-gold btn-sm" id="codeGo" data-act="codeEnter" disabled>Enter</button></div></div>' +
+      '<button class="btn btn-gold btn-sm" id="codeGo" data-act="codeEnter" disabled>Enter</button></div></div></div></div>' +
       '<div class="sec" style="margin-top:8px"><div class="sec-h"><h3>Boche family</h3></div><div class="pad"><div class="launch">' +
       BC_BUSINESSES.map(function (b) {
         return b.live
@@ -765,6 +766,7 @@
     notifs: function () { toast('You’re all caught up'); },
     flip: function () {
       var f = $('flip'); f.classList.toggle('flipped');
+      var c4 = $('code4'); if (c4 && f.classList.contains('flipped')) setTimeout(function () { c4.querySelector('input').focus(); }, 700);
       var b = $('flipBtn'); if (b) b.innerHTML = f.classList.contains('flipped') ? ic('card') + ' Show card front' : ic('qr') + ' Show QR code';
     },
     wallet: function (el) { toast('Membership pass added to ' + el.dataset.id + ' (demo)'); },

@@ -524,3 +524,11 @@ textarea.input { height: 84px; padding: 12px 16px; resize: none; }
 .vcode { font-family: var(--serif); font-size: 30px; font-weight: 700; letter-spacing: .12em; color: var(--gold-dd); }
 .launch-item { min-height: 70px; padding-top: 9px; padding-bottom: 9px; }
 .launch { gap: 10px; }
+
+/* Venue code appears only when the card is flipped to the QR side */
+.flip-below { position: relative; height: 76px; }
+.flip-below .hint-front { position: absolute; left: 0; right: 0; top: 0; margin: 12px 0 0; transition: opacity .25s; }
+.flip-below .code-panel { opacity: 0; visibility: hidden; transition: opacity .25s; }
+.flip-below .code-label { margin-top: 10px; }
+.flip.flipped ~ .flip-below .hint-front { opacity: 0; visibility: hidden; }
+.flip.flipped ~ .flip-below .code-panel { opacity: 1; visibility: visible; }
