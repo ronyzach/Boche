@@ -583,3 +583,5 @@ textarea.input { height: 84px; padding: 12px 16px; resize: none; }
 .flip-below { height: 48px; }
 .flip-below .hint-front { margin-top: 8px; }
 .home-fam { margin-top: 12px; }
+.promo-slide { transition: opacity .3s, transform .3s; }
+.promo-slide.on { transition-delay: .3s; }
