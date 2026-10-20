@@ -469,3 +469,16 @@ textarea.input { height: 84px; padding: 12px 16px; resize: none; }
 .vd-ic svg { color: #fff; }
 .vd-t { font-family: var(--serif); font-size: 24px; font-weight: 700; line-height: 1.1; }
 .vd-s { font-size: 13px; color: var(--ink-2); margin-top: 3px; }
+
+/* Home launcher */
+.launch { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.launch-item {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 20px 12px 16px;
+  background: #fff; border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); transition: transform .1s;
+}
+.launch-item:active { transform: scale(.97); }
+.launch-item b { font-size: 15px; margin-top: 6px; }
+.launch-item > span:last-child { font-size: 12px; color: var(--muted); }
+.launch-ic { width: 68px; height: 68px; border-radius: 22px; background: var(--metal); color: #2E2108; display: grid; place-items: center; box-shadow: 0 8px 18px rgba(140,100,32,.28); }
+.launch-item.soon-t { background: #FBF8F0; box-shadow: none; border-style: dashed; }
+.launch-item.soon-t .launch-ic { background: #EFE8D6; color: #A89B80; box-shadow: none; }

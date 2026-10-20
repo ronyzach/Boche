@@ -306,68 +306,21 @@
       '<button class="btn btn-gold mt24" data-go="home">Go to Boche.Club</button></div>';
   };
 
-  /* ----- Home (hub) ----- */
+  /* ----- Home (hub): flip card + business icons ----- */
   SCREENS.home = function () {
-    var t = curTier(), nt = nextTier(t), spend = totalSpend(BC_MEMBER.id);
-    var h = '<div class="home-head"><div class="hh-left"><div class="avatar">' + initials(BC_MEMBER.name) + '</div>' +
+    return '<div class="home-head"><div class="hh-left"><div class="avatar">' + initials(BC_MEMBER.name) + '</div>' +
       '<div><div class="hh-greet">' + greeting() + '</div><div class="hh-name">' + esc(BC_MEMBER.firstName) + '</div></div></div>' +
-      '<button class="iconbtn" data-act="notifs" aria-label="Notifications">' + ic('bell') + '<span class="dot"></span></button></div>';
-
-    h += '<div class="pad"><div class="tap" data-go="card">' + cardFront() + '</div>';
-
-    h += '<div class="surface stats-wrap mt16"><div class="stats">' +
-      '<div class="stat"><div class="stat-k">Tier</div><div class="stat-v">' + esc(t.name) + '</div><div class="stat-s">Earned from spend</div></div>' +
-      '<div class="stat-div"></div>' +
-      '<div class="stat"><div class="stat-k">Spend this year</div><div class="stat-v">' + inr(spend) + '</div><div class="stat-s">Across all Boche businesses</div></div></div>';
-    if (nt) {
-      var pct = Math.min(100, spend / nt.minSpend * 100);
-      h += '<div class="progress"><div class="progress-t"><span>' + esc(t.name) + '</span><span>' + esc(nt.name) + ' at ' + inr(nt.minSpend) + '</span></div>' +
-        '<div class="bar"><i style="width:' + pct.toFixed(1) + '%"></i></div>' +
-        '<div class="progress-t mt8" style="margin-bottom:0"><span>' + inr(Math.max(0, nt.minSpend - spend)) + ' more to reach ' + esc(nt.name) + '</span><a class="link" href="#/tiers">How tiers work</a></div></div>';
-    } else {
-      h += '<div class="progress"><div class="progress-t" style="margin-bottom:0"><span>You’re at the top tier — enjoy Diamond benefits everywhere.</span></div></div>';
-    }
-    h += '</div>';
-
-    liveBiz().forEach(function (b) {
-      if (b.expiring && b.expiring.points) {
-        h += '<div class="alert">' + ic('clock', 18) + '<span><b>' + num(b.expiring.points) + ' ' + esc(b.short) + ' points</b> expire on ' + esc(b.expiring.date) + '. <a class="link" href="#/biz/' + b.id + '">Redeem</a></span></div>';
-      }
-    });
-
-    h += '<div class="qa">' +
-      '<button data-go="card"><span class="qa-ic">' + ic('qr') + '</span>Show card</button>' +
-      '<button data-go="explore"><span class="qa-ic">' + ic('pin') + '</span>Explore</button>' +
-      '<button data-go="offers"><span class="qa-ic">' + ic('tag') + '</span>Offers</button>' +
-      '<button data-go="activity"><span class="qa-ic">' + ic('receipt') + '</span>Activity</button></div>';
-
-    if (!isStandalone()) {
-      h += '<button class="install-banner" data-act="install"><span class="li-ic">' + ic('download', 18) + '</span>' +
-        '<span class="li-main"><span class="li-t" style="display:block">Add Boche.Club to your home screen</span><span class="li-s" style="display:block">Opens like an app · your card works without signal</span></span>' +
-        '<span class="li-chev">' + ic('chev', 18) + '</span></button>';
-    }
-    h += '</div>';
-
-    h += '<div class="sec"><div class="sec-h"><h3>Your Boche family</h3></div><div class="pad"><div class="biz-grid">' +
-      liveBiz().map(function (b) {
-        return '<button class="biz-tile" data-go="biz/' + b.id + '"><span class="li-ic">' + ic(b.icon, 20) + '</span><b>' + esc(b.name) + '</b>' +
-          '<span class="bt-sub">' + esc(b.blurb) + '</span><span class="bt-pts">' + num(pointsOf(BC_MEMBER.id, b.id)) + ' <small>pts</small></span></button>';
-      }).join('') +
-      soonBiz().map(function (b) {
-        return '<button class="biz-tile soon-t" data-act="soonBiz" data-id="' + b.id + '"><span class="badge plain">Coming soon</span><span class="li-ic">' + ic(b.icon, 20) + '</span><b>' + esc(b.name) + '</b>' +
-          '<span class="bt-sub">' + esc(b.blurb) + '</span></button>';
+      '<button class="iconbtn" data-act="notifs" aria-label="Notifications">' + ic('bell') + '<span class="dot"></span></button></div>' +
+      '<div class="pad"><div class="flip" id="flip" data-act="flip"><div class="flip-inner"><div class="face front">' + cardFront() + '</div><div class="face back">' + cardBack() + '</div></div></div>' +
+      '<p class="hint">Tap the card to flip it · show the QR at any Boche venue</p></div>' +
+      '<div class="sec" style="margin-top:8px"><div class="sec-h"><h3>Boche family</h3></div><div class="pad"><div class="launch">' +
+      BC_BUSINESSES.map(function (b) {
+        return b.live
+          ? '<button class="launch-item" data-act="openApp" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 30) + '</span><b>' + esc(b.name) + '</b><span>' + esc(b.blurb) + '</span></button>'
+          : '<button class="launch-item soon-t" data-act="soonBiz" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 30) + '</span><b>' + esc(b.name) + '</b><span class="badge plain">Coming soon</span></button>';
       }).join('') + '</div></div></div>';
-
-    h += '<div class="sec"><div class="sec-h"><h3>Offers for you</h3><a class="link" href="#/offers">See all</a></div><div class="offers-row">' +
-      BC_OFFERS.slice(0, 5).map(function (o, i) {
-        return '<button class="offer-mini' + (i === 0 ? ' hl' : '') + '" data-go="offers"><span class="badge' + (i === 0 ? '' : ' plain') + '">' + esc(biz(o.biz).short) + ' · ' + esc(o.kind) + '</span>' +
-          '<h4>' + esc(o.title) + '</h4><p>' + esc(o.desc) + '</p><div class="om-foot">' + ic('pin', 13) + esc(outletsLabel(o)) + '</div></button>';
-      }).join('') + '</div></div>';
-
-    h += '<div class="sec"><div class="sec-h"><h3>Upcoming events</h3><a class="link" href="javascript:void(0)" data-act="openEvents">All events</a></div>' +
-      '<div class="pad"><div class="list">' + BC_EVENTS.slice(0, 2).map(eventRow).join('') + '</div></div></div>';
-    return h;
   };
+  AFTER.home = function () { startQr(); };
 
   /* ----- Card ----- */
   SCREENS.card = function () {
@@ -392,7 +345,7 @@
       '<li>Staff scan it with the Boche.Club business app — your identity, tier and age check are confirmed instantly.</li>' +
       '<li>Whatever you buy, the business adds its points to your mobile number automatically.</li></ol></div>';
   };
-  AFTER.card = function () {
+  function startQr() {
     var left = 30, C = 2 * Math.PI * 11;
     function draw() { $('qrSvg').innerHTML = BCQR.svg(BC_MEMBER.id + ':' + Math.floor(Date.now() / 30000), 200); left = 30 - Math.floor((Date.now() % 30000) / 1000); }
     function tick() {
@@ -401,7 +354,8 @@
       $('qrCount').textContent = left; $('qrRing').style.strokeDashoffset = (C * (1 - left / 30)).toFixed(2);
     }
     draw(); $('qrCount').textContent = left; timers.push(setInterval(tick, 1000));
-  };
+  }
+  AFTER.card = function () { startQr(); };
 
   /* ----- Explore (all outlets) ----- */
   SCREENS.explore = function () {
@@ -441,6 +395,7 @@
       '<div class="pts-hero"><div class="k">' + esc(b.short) + ' points</div><div class="row"><div><div class="v">' + num(pts) + '</div>' +
       '<div class="s">Worth ' + inr(pts * b.rupeeValue) + ' at ' + esc(b.name) + '</div></div>' +
       '<span class="btn btn-sm" style="background:rgba(255,255,255,.55);color:#2E2108">' + ic('crown', 16) + esc(t.name) + ' · ' + b.earn[t.id] + ' pts/₹100</span></div></div>' +
+      (b.expiring && b.expiring.points ? '<div class="alert">' + ic('clock', 18) + '<span><b>' + num(b.expiring.points) + ' points</b> expire on ' + esc(b.expiring.date) + '.</span></div>' : '') +
       '<p class="fine">Points are earned and redeemed only at ' + esc(b.name) + ' · min ' + num(b.minRedeem) + ' pts · valid ' + b.expiryMonths + ' months.</p>' +
       '<button class="btn btn-gold mt16" data-act="openApp" data-id="' + b.id + '">' + ic('open', 18) + ' Open ' + esc(b.appName) + '</button>' +
       '<p class="fine center">Signs you in automatically with your Boche.Club identity.</p>' +
@@ -512,7 +467,8 @@
       '<div class="surface mt16" style="padding:4px 16px"><div class="kv"><span>Your ' + esc(b.short) + ' points</span><span>' + num(pointsOf(BC_MEMBER.id, b.id)) + '</span></div>' +
       '<div class="kv"><span>Tier</span><span>' + esc(curTier().name) + '</span></div></div>' +
       '<p class="fine center mt12">Prototype: this is where ' + esc(b.name) + '’s own application opens, already signed in. Bills raised here add points to your mobile number.</p>' +
-      '<button class="btn btn-gold mt16" data-go="biz/' + b.id + '">' + ic('back', 18) + ' Back to Boche.Club</button></div>';
+      '<button class="btn btn-line mt16" data-go="biz/' + b.id + '">' + ic('gift', 18) + ' Points, rewards & venues</button>' +
+      '<button class="btn btn-gold mt12" data-go="home">' + ic('back', 18) + ' Back to Boche.Club</button></div>';
   };
 
   /* ----- Activity ----- */
