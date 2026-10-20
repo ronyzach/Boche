@@ -316,8 +316,8 @@
       '<div class="sec" style="margin-top:8px"><div class="sec-h"><h3>Boche family</h3></div><div class="pad"><div class="launch">' +
       BC_BUSINESSES.map(function (b) {
         return b.live
-          ? '<button class="launch-item" data-act="openApp" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 30) + '</span><b>' + esc(b.name) + '</b><span>' + esc(b.blurb) + '</span></button>'
-          : '<button class="launch-item soon-t" data-act="soonBiz" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 30) + '</span><b>' + esc(b.name) + '</b><span class="badge plain">Coming soon</span></button>';
+          ? '<button class="launch-item" data-act="openApp" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 26) + '</span><b>' + esc(b.name) + '</b></button>'
+          : '<button class="launch-item soon-t" data-act="soonBiz" data-id="' + b.id + '"><span class="launch-ic">' + ic(b.icon, 26) + '</span><b>' + esc(b.name) + '</b><span class="soon-tag">Soon</span></button>';
       }).join('') + '</div></div></div>';
   };
   AFTER.home = function () { startQr(); };

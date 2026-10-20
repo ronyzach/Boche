@@ -482,3 +482,14 @@ textarea.input { height: 84px; padding: 12px 16px; resize: none; }
 .launch-ic { width: 68px; height: 68px; border-radius: 22px; background: var(--metal); color: #2E2108; display: grid; place-items: center; box-shadow: 0 8px 18px rgba(140,100,32,.28); }
 .launch-item.soon-t { background: #FBF8F0; box-shadow: none; border-style: dashed; }
 .launch-item.soon-t .launch-ic { background: #EFE8D6; color: #A89B80; box-shadow: none; }
+
+/* Compact launcher: four across, no descriptions */
+.launch { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.launch-item { padding: 12px 4px 10px; gap: 6px; border-radius: 18px; position: relative; }
+.launch-item b { font-size: 12px; margin-top: 0; line-height: 1.2; }
+.launch-ic { width: 52px; height: 52px; border-radius: 17px; }
+.soon-tag { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: #F1EADA; padding: 2px 8px; border-radius: 10px; }
+.launch-item > span:last-child:not(.soon-tag) { display: none; }
+
+/* Welcome: decorative cards show brand only (no overlapping detail text) */
+.wl-cards .mc-num, .wl-cards .mc-bottom { display: none; }
