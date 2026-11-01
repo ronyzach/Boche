@@ -1,9 +1,9 @@
 /* ============================================================
-   Boche.Club — data.js
+   Boche — data.js
    SINGLE SOURCE OF TRUTH for every data value in the app.
    UI files (index.html, app.js) hold structure and labels only.
 
-   Model: Boche.Club is the super app. Each business (Pub, Resort,
+   Model: Boche is the super app. Each business (Pub, Resort,
    Tea, Gold) is a child with its OWN application and database.
    The mobile number is the shared key. Points are per business;
    tier comes from total spend across the ecosystem.
@@ -11,11 +11,13 @@
    ============================================================ */
 
 var BC_BRAND = {
-  name: 'Boche.Club',
+  name: 'Boche',
   group: 'Chemmannur International Gold & Diamonds',
   tagline: 'One membership. Every Boche experience.',
   intro: 'Sign in once with your mobile number. Earn rewards across the Boche family and unlock higher tiers as you spend.',
-  demoOtp: '246810',
+  otpLength: 4,
+  demoOtp: '1234',
+  demoEmailOtp: '1234',
   supportPhone: '1800 000 0000',
   supportEmail: 'care@boche.club'
 };
@@ -35,7 +37,7 @@ var BC_STATES = {
 /* Child businesses. live:false = shown as "coming soon".
    earn = points per ₹100 billed, by member tier (set by each business). */
 var BC_BUSINESSES = [
-  { id: 'pub', name: 'Boche Pub', short: 'Pub', icon: 'beer', live: true,
+  { id: 'pub', name: 'Boche Pub', short: 'Pub', label: 'Pub', icon: 'beer', live: true,
     blurb: 'Pubs across Kerala & Karnataka', appName: 'Pub Application',
     earn: { classic: 2, gold: 5, diamond: 8 },
     rupeeValue: 0.5, minRedeem: 500, expiryMonths: 12, expiring: { points: 600, date: '30 Nov 2026' },
@@ -44,7 +46,7 @@ var BC_BUSINESSES = [
       { icon: 'calendar', title: 'Reservations', sub: 'Your table bookings' },
       { icon: 'receipt', title: 'My bills', sub: 'Past bills at Boche pubs' }
     ] },
-  { id: 'resort', name: 'Boche 1000 Acre', short: '1000 Acre', icon: 'mountain', live: true,
+  { id: 'resort', name: 'Boche 1000 Acre', short: '1000 Acre', label: 'Resort', icon: 'mountain', live: true,
     blurb: 'Resort stays, restaurant & toddy shop', appName: 'Hospitality App',
     earn: { classic: 2, gold: 3, diamond: 5 },
     rupeeValue: 0.5, minRedeem: 1000, expiryMonths: 18, expiring: null,
@@ -53,9 +55,9 @@ var BC_BUSINESSES = [
       { icon: 'doc', title: 'Restaurant menu', sub: 'In-room and dine-in' },
       { icon: 'receipt', title: 'Folio & bills', sub: 'Charges from your stays' }
     ] },
-  { id: 'tea', name: 'Boche Tea', short: 'Tea', icon: 'leaf', live: false,
-    blurb: 'Estate-fresh tea', appName: 'Tea Retail App' },
-  { id: 'gold', name: 'Boche Gold', short: 'Gold', icon: 'gem', live: false,
+  { id: 'tea', name: 'Boche Tea', short: 'Tea', label: 'Tea', icon: 'leaf', live: true, route: 'tea',
+    blurb: 'Estate-fresh tea, delivered in Kerala', appName: 'Tea Retail App' },  /* no points: every pack carries Lucky Draw numbers instead */
+  { id: 'gold', name: 'Boche Gold', short: 'Gold', label: 'Gold', icon: 'gem', live: false,
     blurb: 'Gold & diamond jewellery', appName: 'Gold Business App' }
 ];
 
@@ -80,9 +82,9 @@ var BC_OUTLETS = [
   { id: 'kozhikode', biz: 'pub', kind: 'Pub', name: 'Boche Pub Kozhikode', city: 'Kozhikode', area: 'Beach Road', state: 'KL',
     hours: '12 PM – 11 PM', phone: '+91 495 000 0103', distance: '186 km', rating: 4.4,
     tags: ['Sea view', 'Malabar kitchen'], tone: 'c', ageGate: true, bookable: true, checkinLabel: 'Entry' },
-  { id: 'blr', biz: 'pub', kind: 'Pub', name: 'Boche Pub Bengaluru', city: 'Bengaluru', area: 'Indiranagar', state: 'KA',
-    hours: '12 PM – 1 AM', phone: '+91 80 0000 0104', distance: '548 km', rating: 4.7,
-    tags: ['DJ weekends', 'Microbrewery'], tone: 'd', ageGate: true, bookable: true, checkinLabel: 'Entry' },
+  { id: 'blr', biz: 'pub', kind: 'Pub', name: 'Shakesbierre Brewpub & Club by Boche', city: 'Bengaluru', area: 'Eva Mall, Brigade Road', state: 'KA',
+    hours: '12 PM – 12 AM', phone: '+91 96149 59959', distance: '548 km', rating: 4.7, logo: 'img/shakesbierre.png',
+    tags: ['Brewpub', 'Karaoke lounge', 'Live music'], tone: 'd', ageGate: true, bookable: true, checkinLabel: 'Entry' },
   { id: 'mlr', biz: 'pub', kind: 'Pub', name: 'Boche Pub Mangaluru', city: 'Mangaluru', area: 'Lighthouse Hill Road', state: 'KA',
     hours: '12 PM – 11:30 PM', phone: '+91 824 000 0105', distance: '412 km', rating: 4.5,
     tags: ['Coastal grill', 'Open deck'], tone: 'e', ageGate: true, bookable: true, checkinLabel: 'Entry' },
@@ -118,7 +120,7 @@ var BC_MEMBERS = [
       { biz: 'pub',    date: '17 Oct 2026', title: 'Bill · Boche Pub Kochi',       ref: 'KCH-87102', pts: 186 },
       { biz: 'pub',    date: '12 Oct 2026', title: 'Redeemed · Starter platter',    ref: 'VCH-2231',  pts: -900 },
       { biz: 'pub',    date: '05 Oct 2026', title: 'Pub Trail bonus · 3 pubs',      ref: 'PROMO-O1',  pts: 1500 },
-      { biz: 'pub',    date: '04 Oct 2026', title: 'Bill · Boche Pub Bengaluru',    ref: 'BLR-40918', pts: 240 },
+      { biz: 'pub',    date: '04 Oct 2026', title: 'Bill · Shakesbierre Bengaluru',    ref: 'BLR-40918', pts: 240 },
       { biz: 'resort', date: '22 Sep 2026', title: 'Stay · 1000 Acre Resort',       ref: 'FOL-30871', pts: 850 },
       { biz: 'resort', date: '20 Sep 2026', title: 'Dining · 1000 Acre Restaurant', ref: 'RST-11902', pts: 500 },
       { biz: 'pub',    date: '28 Sep 2026', title: 'Bill · Boche Pub Mangaluru',    ref: 'MLR-11873', pts: 155 }
@@ -171,8 +173,10 @@ var BC_REWARDS = [
 var BC_OFFERS = [
   { id: 'o1', biz: 'pub', kind: 'Cross-pub', title: 'Pub Trail', desc: 'Visit any 3 different Boche pubs this month and earn 1,500 bonus pub points.',
     outlets: 'all', valid: 'Till 31 Oct 2026', tiers: ['classic', 'gold', 'diamond'] },
-  { id: 'o2', biz: 'pub', kind: 'Double points', title: 'Bengaluru weekends', desc: 'Earn 2× points on every bill on Saturdays and Sundays.',
-    outlets: ['blr'], valid: 'Every weekend', tiers: ['classic', 'gold', 'diamond'] },
+  { id: 'o2', biz: 'pub', kind: 'Happy hours', title: 'Monday happy hours', desc: 'All-day happy hours every Monday at Shakesbierre, Brigade Road. Craft beers and cocktails. Confirm at the venue.',
+    outlets: ['blr'], valid: 'Every Monday', tiers: ['classic', 'gold', 'diamond'] },
+  { id: 'o8', biz: 'pub', kind: 'Craft beer', title: 'Craft beer 2 + 1', desc: 'Ask at the bar about the 2 + 1 craft beer offer at Shakesbierre. Show your Boche card.',
+    outlets: ['blr'], valid: 'Ask at the bar', tiers: ['classic', 'gold', 'diamond'] },
   { id: 'o3', biz: 'pub', kind: 'Members only', title: 'Free starter over ₹2,500', desc: 'A complimentary starter on food bills above ₹2,500.',
     outlets: ['kozhikode', 'tvm'], valid: 'Mon – Thu', tiers: ['gold', 'diamond'] },
   { id: 'o4', biz: 'pub', kind: 'Refer', title: 'Bring a friend', desc: 'Earn 500 points when a friend joins and makes their first visit.',
@@ -199,30 +203,91 @@ var BC_BOOKING = {
   maxGuests: 12
 };
 
+/* Age check: Aadhaar number (Verhoeff-validated) + OTP from UIDAI to the Aadhaar-linked mobile.
+   Only the last 4 digits and a verified-age flag are stored. Demo values work in the prototype. */
 var BC_KYC = {
-  methods: [
-    { id: 'digilocker', title: 'DigiLocker', sub: 'Fastest — fetch Aadhaar details with your consent', recommended: true },
-    { id: 'offline',    title: 'Aadhaar offline e-KYC', sub: 'Upload the Aadhaar XML or scan the QR on your card' }
-  ],
-  steps: ['Connecting securely', 'Fetching masked Aadhaar with your consent', 'Reading date of birth', 'Saving your verified-age flag'],
-  consent: 'I consent to Boche.Club verifying my age using my Aadhaar details. Only my name, year of birth and a verified-age flag are stored — never my Aadhaar number.'
+  otpLength: 4,
+  demoAadhaar: '2345 6789 0124',
+  demoOtp: '1234',
+  steps: ['Verifying OTP with UIDAI', 'Reading your date of birth', 'Saving your verified-age flag'],
+  consent: 'I agree to Boche verifying my age with Aadhaar OTP. Only the last 4 digits and a verified-age flag are kept.'
 };
 
+/* Account security: SIM must match the mobile number; a new phone also needs an email code */
+var BC_SECURITY = { emailOtpLength: 4 };
+
 /* Single sign-on hand-off steps shown before a child app opens */
-var BC_SSO_STEPS = ['Verifying your Boche.Club session', 'Sharing your mobile number securely', 'Signing you in to {app}'];
+var BC_SSO_STEPS = ['Verifying your Boche session', 'Sharing your mobile number securely', 'Signing you in to {app}'];
 
 /* Staff scanner */
 var BC_STAFF_UI = {
-  scanHint: 'Point at the member’s Boche.Club QR',
+  scanHint: 'Point at the member’s Boche QR',
   minBill: 100,
   otpValidMinutes: 5
 };
 
 /* Rotating promo banner on Home */
-var BC_PROMO_CFG = { rotateMs: 4500 };
+/* Home carousel. biz = which business it promotes (theme + icon); 'club' = Boche itself.
+   go = route for live businesses; coming-soon businesses show a teaser. */
+var BC_PROMO_CFG = { rotateMs: 5000 };
 var BC_PROMOS = [
-  { biz: 'pub',    title: 'Pub Trail',            text: 'Visit 3 Boche pubs this month and earn 1,500 bonus points.' },
-  { biz: 'resort', title: 'Weekend stay bonus',   text: 'Stay two nights at 1000 Acre and earn 1,000 bonus points.' },
-  { biz: 'resort', title: 'Toddy & karimeen tasting', text: 'Complimentary for Gold and Diamond members, 4 – 7 PM.' },
-  { biz: 'pub',    title: 'Bring a friend',       text: 'Earn 500 points when a friend joins and makes a first visit.' }
+  { biz: 'club',   title: 'Win ₹1 lakh every day', art: 'draw', text: 'Every Tea order gets a scratch card for the daily 9 PM Lucky Draw.', cta: 'Lucky Draw', go: 'draw', icon: 'gift' },
+  { biz: 'pub',    title: 'Pub Trail', art: 'pub', logo: 'img/shakesbierre.png',            text: 'Visit 3 Boche pubs this month and earn 1,500 bonus points.', cta: 'Explore pubs', go: 'biz/pub' },
+  { biz: 'resort', title: 'Weekend at 1000 Acre', art: 'resort', text: 'Stay two nights and earn 1,000 bonus points.',                cta: 'View resort',  go: 'biz/resort' },
+  { biz: 'club',   title: 'Bring a friend', art: 'friend',       text: 'Earn 500 points when a friend joins and makes a first visit.', cta: 'See offers',   go: 'offers' },
+  { biz: 'tea',    title: 'Estate tea, home delivered', art: 'tea', text: 'Every pack comes with Lucky Draw numbers. Delivered anywhere in Kerala.', cta: 'Shop tea', go: 'tea' },
+  { biz: 'gold',   title: 'Boche Gold', art: 'gold',           text: 'Jewellery purchases will earn points and lift your tier.',     cta: 'Coming soon' }
 ];
+
+/* Boche Tea online shop. Prices in ₹ before GST; GST (taxRate on tea, logisticsTaxRate on logistics) is added only at checkout. Delivery only to Kerala pincodes.
+   Logistics = each pack's own delivery charge × qty. */
+var BC_TEA = {
+  product: { name: 'Boche Estate Tea', tagline: 'Strong, malty CTC for a rich chai', desc: 'Strong, malty CTC from the Western Ghats. Brews a rich chai.' },
+  /* Bigger packs cost less per kg (₹360 → ₹340 → ₹320).
+     numbers = Lucky Draw numbers on the one scratch card each pack comes with
+     logistics = delivery charge per pack, before GST */
+  packs: [
+    { id: 'p250', size: '250 g', grams: 250,  price: 90,  numbers: 1, logistics: 36 },
+    { id: 'p500', size: '500 g', grams: 500,  price: 170, numbers: 3, logistics: 36 },
+    { id: 'p1k',  size: '1 kg',  grams: 1000, price: 320, numbers: 8, logistics: 52 }
+  ],
+  maxQty: 10,
+  taxRate: 5,            /* tea (HSN 0902) is 5% GST */
+  logisticsTaxRate: 18,  /* delivery / logistics is 18% GST */
+  eta: '3–5 days',
+  pincodeApi: 'https://api.postalpincode.in/pincode/',
+  /* Offline fallback: Kerala pincode prefix → district (used if the India Post lookup is unreachable) */
+  districts: { '670': 'Kannur', '671': 'Kasaragod', '673': 'Kozhikode', '676': 'Malappuram', '678': 'Palakkad', '679': 'Palakkad',
+    '680': 'Thrissur', '682': 'Ernakulam', '683': 'Ernakulam', '685': 'Idukki', '686': 'Kottayam', '688': 'Alappuzha',
+    '689': 'Pathanamthitta', '690': 'Kollam', '691': 'Kollam', '692': 'Thiruvananthapuram', '693': 'Thiruvananthapuram', '694': 'Thiruvananthapuram', '695': 'Thiruvananthapuram' }
+};
+
+/* Daily Lucky Draw. Every paid Tea order gives one scratch card with a unique lucky number
+   (format "XY 123456", unique per day). Entries submitted before drawHour go into that day's
+   draw, later ones into the next day's. In production the server issues numbers and runs the draw. */
+var BC_DRAW = {
+  name: 'Lucky Draw',
+  drawHour: 21,
+  prizes: [
+    { rank: '1st prize', amount: 100000, count: 1 },
+    { rank: '2nd prize', amount: 50000,  count: 1 },
+    { rank: '3rd prize', amount: 25000,  count: 1 },
+    { rank: 'Lucky 7',   amount: 10000,  count: 7 }
+  ],
+  letters: 'ABCDEFGHJKLMNPRSTUVWXYZ',
+  /* Prototype only: size of the simulated entry pool and names for simulated winners */
+  demoPool: 3200,
+  demoWins: 2,   /* prototype: the member's first 2 drawn days each give one of their numbers a Lucky 7 win */
+  demoNames: ['Anu S.', 'Bijoy K.', 'Deepa R.', 'Faisal M.', 'Gopika N.', 'Hari P.', 'Jincy T.', 'Kiran V.', 'Lakshmi A.', 'Manu J.',
+    'Nisha G.', 'Rahul C.', 'Reshma B.', 'Sajan P.', 'Shibu K.', 'Sneha M.', 'Thomas V.', 'Vineeth R.', 'Ashraf K.', 'Divya S.',
+    'Jose A.', 'Nikhil T.', 'Priya L.', 'Sreejith N.', 'Tessa J.', 'Vishnu P.', 'Ann M.', 'Biju R.', 'Fathima S.', 'Arjun D.']
+};
+
+/* Customer support & grievances. Acknowledge within 48 hours and resolve within a month,
+   in line with the Consumer Protection (E-Commerce) Rules, 2020. */
+var BC_SUPPORT = {
+  hours: 'Support is open 9 AM – 9 PM, every day',
+  minChars: 20, maxChars: 1000,
+  maxFiles: 3, maxMb: 5,
+  ackHours: 48, resolveDays: 30
+};

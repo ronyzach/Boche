@@ -1,6 +1,6 @@
 {
-  "name": "Boche.Club",
-  "short_name": "Boche.Club",
+  "name": "Boche",
+  "short_name": "Boche",
   "description": "One membership across the Boche family",
   "start_url": "./index.html",
   "scope": "./",
