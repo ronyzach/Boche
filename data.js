@@ -172,7 +172,7 @@ var BC_REWARDS = [
 /* Offers — each belongs to a business; cross-business offers drive discovery */
 var BC_OFFERS = [
   { id: 'o1', biz: 'pub', kind: 'Cross-pub', title: 'Pub Trail', desc: 'Visit any 3 different Boche pubs this month and earn 1,500 bonus pub points.',
-    outlets: 'all', valid: 'Till 31 Oct 2026', tiers: ['classic', 'gold', 'diamond'] },
+    outlets: 'all', valid: 'Till 31 Dec 2026', tiers: ['classic', 'gold', 'diamond'] },
   { id: 'o2', biz: 'pub', kind: 'Happy hours', title: 'Monday happy hours', desc: 'All-day happy hours every Monday at Shakesbierre, Brigade Road. Craft beers and cocktails. Confirm at the venue.',
     outlets: ['blr'], valid: 'Every Monday', tiers: ['classic', 'gold', 'diamond'] },
   { id: 'o8', biz: 'pub', kind: 'Craft beer', title: 'Craft beer 2 + 1', desc: 'Ask at the bar about the 2 + 1 craft beer offer at Shakesbierre. Show your Boche card.',
@@ -190,8 +190,8 @@ var BC_OFFERS = [
 ];
 
 var BC_EVENTS = [
-  { id: 'e1', date: '2026-10-24', title: 'Friday Live: Indie Night', outlet: 'kochi', time: '8:00 PM', price: 'Free for members', seats: 18 },
-  { id: 'e2', date: '2026-10-31', title: 'Halloween Social', outlet: 'blr', time: '9:00 PM', price: '₹499 · free for Gold & Diamond', seats: 40 },
+  { id: 'e1', date: '2026-11-06', title: 'Friday Live: Indie Night', outlet: 'kochi', time: '8:00 PM', price: 'Free for members', seats: 18 },
+  { id: 'e2', date: '2026-11-14', title: 'Saturday Social', outlet: 'blr', time: '9:00 PM', price: '₹499 · free for Gold & Diamond', seats: 40 },
   { id: 'e3', date: '2026-11-07', title: 'Quiz Night', outlet: 'tvm', time: '7:30 PM', price: 'Free for members', seats: 12 },
   { id: 'e4', date: '2026-11-08', title: 'Estate Brunch', outlet: 'restaurant', time: '11:00 AM', price: '₹799 for members', seats: 24 },
   { id: 'e5', date: '2026-11-14', title: 'Coastal Food Fest', outlet: 'mlr', time: '7:00 PM', price: '₹299 for members', seats: 30 }

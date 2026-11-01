@@ -453,7 +453,7 @@
   SCREENS['kyc-done'] = function (back) {
     var a = ageOf(BC_MEMBER.dob), keys = Object.keys(BC_STATES);
     var all = keys.every(function (k) { return a >= BC_STATES[k].drinkingAge; });
-    return '<div class="auth"><div class="verified-hero"><div class="big-check">' + ic('check', 36) + '</div>' +
+    return '<div class="auth tea-page"><div class="verified-hero"><div class="big-check">' + ic('check', 36) + '</div>' +
       '<h1>You’re verified</h1><p class="lead">' + (all ? 'You can book, reserve and enter every Boche pub.' : 'Here’s where you can enter today.') + '</p></div>' +
       (all ? '' : '<div class="list mt16">' + keys.map(function (k) {
         var ok = a >= BC_STATES[k].drinkingAge;
@@ -540,7 +540,7 @@
     tea: '<svg viewBox="0 0 220 220" aria-hidden="true">' +
       '<defs><radialGradient id="teO"><stop offset="0" stop-color="#B8F060" stop-opacity=".55"/><stop offset="1" stop-color="#B8F060" stop-opacity="0"/></radialGradient>' +
       '<linearGradient id="teC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#DDE9C6"/></linearGradient>' +
-      '<linearGradient id="teL" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B9F26A"/><stop offset="1" stop-color="#5FA52A"/></linearGradient></defs>' +
+      '<linearGradient id="teL" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B8F060"/><stop offset="1" stop-color="#5FA52A"/></linearGradient></defs>' +
       '<circle cx="112" cy="134" r="98" fill="url(#teO)"/>' +
       '<g fill="none" stroke="#D8F79A" stroke-width="4.5" stroke-linecap="round"><path class="te-st" pathLength="100" d="M80 96c-12-14 12-22 0-40s10-24 4-38"/><path class="te-st s2" pathLength="100" d="M110 92c-12-14 12-22 0-42s10-26 4-42"/><path class="te-st s3" pathLength="100" d="M140 96c-12-14 12-22 0-40s10-24 4-38"/></g>' +
       '<path d="M40 108h144v26a64 56 0 0 1-72 56 64 56 0 0 1-72-56z" fill="url(#teC)"/>' +
@@ -551,7 +551,7 @@
       '<g class="te-lf"><path d="M14 74c22-6 36 6 38 26-22 6-38-6-38-26z" fill="url(#teL)"/><path d="M18 78c10 4 20 12 28 20" stroke="#2E6A14" stroke-width="1.6" fill="none" opacity=".6"/></g>' +
       '<g class="te-lf l2"><path d="M50 40c16 6 24 20 16 36-16-6-24-20-16-36z" fill="#8FD14A"/></g>' +
       '<g class="te-lf l3"><path d="M186 82c-22-2-34 12-32 30 22 0 34-12 32-30z" fill="url(#teL)"/><path d="M182 88c-10 6-18 14-24 22" stroke="#2E6A14" stroke-width="1.6" fill="none" opacity=".6"/></g>' +
-      '<path class="te-fl" d="M0 0c10-3 17 3 18 12-10 3-18-3-18-12z" fill="#B9F26A" transform="translate(150 10)"/>' +
+      '<path class="te-fl" d="M0 0c10-3 17 3 18 12-10 3-18-3-18-12z" fill="#B8F060" transform="translate(150 10)"/>' +
       '<g class="te-tw">' + SPARK(190, 36, .9, '#EAF9C4') + '</g></svg>',
 
     gold: '<svg viewBox="0 0 220 220" aria-hidden="true">' +
@@ -864,7 +864,7 @@
   }
   SCREENS['tea-orders'] = function () {
     var orders = dyn(BC_MEMBER.id).teaOrders || [];
-    return topbar('My orders', 'tea') + '<div class="pad">' +
+    return topbar('My orders', 'tea') + '<div class="pad tea-page">' +
       (orders.length ? '<div class="otable"><div class="ot-row ot-h"><span>#</span><span>Date</span><span>Order ID</span><span>Draw</span><span></span></div>' +
         orders.map(function (o, i) {
           var st = orderStatus(o), cards = o.cards || [], dr = orderDraw(o);
@@ -896,7 +896,7 @@
       if (!d) days.push(d = { date: x.o.date, items: [] });
       d.items.push(x);
     });
-    return topbar('My lucky numbers', 'tea') + '<div class="pad">' +
+    return topbar('My lucky numbers', 'tea') + '<div class="pad tea-page">' +
       (days.length ? days.map(function (g) {
         var p = String(g.date).split(' '), st = g.items.map(function (x) { return cardState(x.c); }),
           same = st.every(function (q) { return !q.go && !q.win && q.t === st[0].t; }),
@@ -917,23 +917,25 @@
 
   SCREENS.tea = function () {
     var t = curTier(), n = teaCount(), b = biz('tea');
-    return '<div class="flow">' + topbar('Boche Tea', 'home') + '<div class="pad">' +
-      '<div class="tea-hero"><span class="tea-art">' + ic('leaf', 110) + '</span>' +
-      '<h1>' + esc(BC_TEA.product.name) + '</h1><p class="th-tag">' + esc(BC_TEA.product.tagline) + '</p>' +
-      '<div class="tea-meta"><span>' + ic('pin', 13) + 'All Kerala</span><span>' + ic('clock', 13) + esc(BC_TEA.eta) + '</span><a class="tm-link" href="#/draw">' + ic('gift', 13) + 'Lucky Draw' + ic('chev', 12) + '</a></div>' +
-      '</div>' +
-      '<div class="field-l">Choose your pack</div>' +
-      BC_TEA.packs.map(function (p) {
-        var q = teaBag()[p.id];
-        return '<div class="tea-pack' + (q ? ' on' : '') + '"><div class="tp-size">' + esc(p.size) + '</div>' +
-          '<div class="li-main"><div class="tp-price">' + inr(p.price) + '</div><span class="badge tp-nos">' + ic('gift', 11) + numsLabel(p.numbers) + '</span></div>' +
-          (q ? '<div class="qty"><button data-act="teaQty" data-id="' + p.id + '" data-d="-1" aria-label="Remove one">' + ic('minus', 16) + '</button><b>' + q + '</b>' +
-              '<button data-act="teaQty" data-id="' + p.id + '" data-d="1" aria-label="Add one"' + (q >= BC_TEA.maxQty ? ' disabled' : '') + '>' + ic('plus', 16) + '</button></div>'
-            : '<button class="btn btn-sm btn-line tp-add" data-act="teaQty" data-id="' + p.id + '" data-d="1">' + ic('plus', 15) + 'Add</button>') + '</div>';
-      }).join('') +
-      '<p class="fine">Delivery and GST are added at checkout.</p></div>' +
+    return '<div class="flow tea-page">' + topbar('Boche Tea', 'home') + '<div class="pad">' +
+      '<a class="tea-ban" href="#/draw"><span class="tn-art">' + ic('gift', 70) + '</span><span class="tn-k">' + ic('sparkle', 12) + 'Lucky Draw</span>' +
+        '<span class="tn-t">Win up to <b>' + inr(BC_DRAW.prizes[0].amount) + '</b> every day</span><span class="tn-s">Every pack includes a scratch card</span></a>' +
+      (function () {
+        var seen = ui.teaSeen; setTimeout(function () { ui.teaSeen = true; }, 900);
+        var best = BC_TEA.packs.slice().sort(function (x, y) { return x.price / x.numbers - y.price / y.numbers; })[0].id;
+        return BC_TEA.packs.map(function (p, i) {
+          var q = teaBag()[p.id];
+          return '<div class="tea-pack' + (q ? ' on' : '') + (p.id === best ? ' best' : '') + (ui.teaSeen ? '' : ' tp-anim') + '" style="--i:' + i + '">' + (p.id === best ? '<span class="tp-flag">Best value</span>' : '') +
+                        '<div class="tp-mid"><div class="tp-name">' + esc(p.size) + '</div><span class="tp-nos">' + ic('gift', 12) + numsLabel(p.numbers) + '</span></div>' +
+            '<div class="tp-right"><div class="tp-price">' + inr(p.price) + '</div>' +
+            (q ? '<div class="qty"><button data-act="teaQty" data-id="' + p.id + '" data-d="-1" aria-label="Remove one">' + ic('minus', 16) + '</button><b>' + q + '</b>' +
+                '<button data-act="teaQty" data-id="' + p.id + '" data-d="1" aria-label="Add one"' + (q >= BC_TEA.maxQty ? ' disabled' : '') + '>' + ic('plus', 16) + '</button></div>'
+              : '<button class="btn btn-gold tp-buy" data-act="teaQty" data-id="' + p.id + '" data-d="1">Buy</button>') + '</div></div>';
+        }).join('');
+      })() +
+      '<p class="fine">Delivered across Kerala in ' + esc(BC_TEA.eta) + '. GST added at checkout.</p></div>' +
       '<div class="sticky-cta">' +
-      '<div class="tea-bar"><div><div class="tb-k">' + (n ? n + (n > 1 ? ' packs' : ' pack') : 'Your bag is empty') + '</div><div class="tb-v">' + inr(teaSubtotal()) + '</div></div>' +
+      '<div class="tea-bar"><div><div class="tb-k">' + (n ? n + (n > 1 ? ' packs' : ' pack') + ' · ' + numsLabel(teaNumbers()) : 'Choose a pack') + '</div><div class="tb-v">' + inr(teaSubtotal()) + '</div></div>' +
       '<button class="btn btn-gold" data-go="tea-address"' + (n ? '' : ' disabled') + '>Continue ' + ic('chev', 16) + '</button></div></div></div>';
   };
 
@@ -1009,7 +1011,7 @@
 
   SCREENS['tea-address'] = function () {
     var l = addrList(), picking = l.length && ui.tea.pick !== 'new';
-    return '<div class="flow">' + topbar('Delivery address', 'tea') + '<div class="pad">' + teaSteps(1) +
+    return '<div class="flow tea-page">' + topbar('Delivery address', 'tea') + '<div class="pad">' + teaSteps(1) +
       (picking ? '<div class="field-l">Deliver to</div>' + l.map(function (a) {
           return '<button class="method' + (ui.tea.pick === a.id ? ' on' : '') + '" data-act="teaPickAddr" data-id="' + a.id + '"><span class="radio"></span><span class="li-main">' +
             '<span class="li-t" style="display:block">' + esc(a.label || 'Home') + ' · ' + esc(a.addr.name) + '</span><span class="li-s" style="display:block">' + esc(addrLine(a)) + '</span></span></button>';
@@ -1095,7 +1097,7 @@
 
   SCREENS['tea-pay'] = function () {
     var a = ui.tea.addr, area = ui.tea.area, sub = teaSubtotal(), lg = teaLogistics(), g = teaGst(sub, lg), tot = Math.round((sub + lg + g.total) * 100) / 100, cards = teaCount(), nos = teaNumbers();
-    return '<div class="flow">' + topbar('Review & pay', 'tea-address') + '<div class="pad">' + teaSteps(2) +
+    return '<div class="flow tea-page">' + topbar('Review & pay', 'tea-address') + '<div class="pad">' + teaSteps(2) +
       '<div class="surface pay-card"><div class="pc-h"><span>Deliver to</span><button class="link" data-go="tea-address">Change</button></div>' +
       '<div class="li-t">' + esc(a.name) + '</div><div class="li-s">' + esc(a.house) + ', ' + esc(a.street) + '<br>' + esc(teaAreaLine({ po: area.po, district: area.district, pin: a.pin })) + '</div>' +
       '<div class="li-s">+91 ' + esc(BC_MEMBER.mobile) + '</div></div>' +
@@ -2053,7 +2055,7 @@
   var STAFF_APP = { scan: 1, verify: 1 };
   var TABS = { home: 1, explore: 1, card: 1, activity: 1, profile: 1, tea: 1, 'tea-orders': 1, 'my-numbers': 1, draw: 1, scratch: 1, 'tea-done': 1 };
   /* Tea screens keep the bottom bar (checkout steps don't, they have their own pay bar); Explore is their home tab */
-  var TAB_OF = { tea: 'explore', 'tea-orders': 'explore', 'my-numbers': 'explore', draw: 'explore', scratch: 'explore', 'tea-done': 'explore' };
+  var TAB_OF = { tea: 'home', 'tea-orders': 'home', 'my-numbers': 'home', draw: 'home', scratch: 'home', 'tea-done': 'home' };
   var timers = [];
   function clearTimers() { timers.forEach(function (t) { clearInterval(t); clearTimeout(t); }); timers = []; }
   function parse() { var p = (location.hash || '').replace(/^#\/?/, '').split('/'); return { name: p[0] || '', arg: decodeURIComponent(p[1] || '') }; }
@@ -2084,7 +2086,7 @@
   function render(keepScroll) {
     if (!keepScroll) trackNav();
     var r = resolve(parse()), scr = $('screen'), top = scr.scrollTop;
-    if (!keepScroll) { clearTimers(); closeSheet(true); ui.pageMenu = false; }
+    if (!keepScroll) { clearTimers(); closeSheet(true); ui.pageMenu = false; ui.teaSeen = false; }
     $('device').classList.toggle('has-tabs', !!TABS[r.name]);
     scr.innerHTML = SCREENS[r.name](r.arg);
     scr.scrollTop = keepScroll ? top : 0;
