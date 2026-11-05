@@ -169,10 +169,10 @@
 
   /* ---------- Shared fragments ---------- */
   /* Every inner page: back on the left; on the right a ⋮ menu with options that suit the page, and the member's avatar (name, tier, quick links) */
-  var HELP = ['support', 'headset', 'Help & support'], SHOP = ['tea', 'leaf', 'Shop tea'], ORDERS = ['tea-orders', 'receipt', 'My orders'], NUMS = ['my-numbers', 'gift', 'My lucky numbers'],
+  var HELP = ['support', 'headset', 'Help & support'], SHOP = ['tea', 'leaf', 'Shop tea'], ORDERS = ['tea-orders', 'receipt', 'My orders'], NUMS = ['my-numbers', 'gift', 'My lucky numbers'], WINS = ['my-wins', 'crown', 'My wins'],
     DRAW = ['draw', 'crown', 'Lucky Draw'], OFFERS = ['offers', 'tag', 'Offers & events'], TIERS = ['tiers', 'crown', 'Membership tiers'], VENUES = ['explore', 'pin', 'All venues'], ADDRS = ['addresses', 'pin', 'Delivery addresses'], ACT = ['activity', 'receipt', 'Activity'];
   var PAGE_MENU = {
-    tea: [ORDERS, NUMS, ['draw', 'crown', 'Draw results'], ADDRS], 'tea-orders': [SHOP, NUMS, DRAW, HELP], 'my-numbers': [SHOP, ORDERS, DRAW], draw: [ORDERS, NUMS, SHOP, HELP],
+    tea: [ORDERS, NUMS, WINS, ADDRS], 'tea-orders': [SHOP, NUMS, WINS, HELP], 'my-numbers': [SHOP, ORDERS, WINS], draw: [WINS, ORDERS, NUMS, HELP], 'my-wins': [NUMS, ORDERS, DRAW, HELP],
     'tea-address': [ORDERS, HELP], 'tea-pay': [ORDERS, HELP], addresses: [ORDERS, HELP], address: [ORDERS, HELP],
     explore: [OFFERS, TIERS, HELP], card: [TIERS, OFFERS, HELP], biz: [OFFERS, VENUES, TIERS, HELP], outlet: [OFFERS, VENUES, HELP], book: [VENUES, HELP],
     support: [['grievance', 'clip', 'Raise a complaint'], ['card', 'card', 'My card'], ACT], grievance: [HELP, ACT], ticket: [HELP, ACT],
@@ -847,7 +847,7 @@
     var won = res.filter(function (w) { return c.nos.indexOf(w.no) > -1; });
     if (!won.length) return { t: dayLabel(c.drawDate) + '’s draw · no win this time' };
     var amt = won.reduce(function (t, w) { return t + w.amount; }, 0), wn = won.map(function (w) { return w.no; });
-    return c.claimed ? { t: inr(amt) + ' claimed · paid to HDFC Bank ••4321', win: true, wn: wn, amount: amt }
+    return c.claimed ? { t: inr(amt) + ' claim submitted', win: true, wn: wn, amount: amt }
       : { t: 'Won ' + inr(amt) + ' · ' + won[0].rank, win: true, wn: wn, amount: amt, claim: true };
   }
 
@@ -880,7 +880,8 @@
             cards.map(function (c) {
               var cs = cardState(c);
               return '<div class="kv ot-card' + (cs.win ? ' win' : '') + '"><span>' + (c.pack ? esc(c.pack) + ' card' : 'Card') + '</span><span>' +
-                (cs.win ? ic('crown', 13) : '') + esc(cs.t) + (cs.go ? ' · <a class="link" href="#/' + cs.go + '">' + cs.cta + '</a>' : '') + '</span></div>';
+                (cs.win ? ic('crown', 13) : '') + esc(cs.t) + (cs.go ? ' · <a class="link" href="#/' + cs.go + '">' + cs.cta + '</a>' : '') +
+                (cs.claim ? ' · <a class="link" href="#/claim/' + c.id + '">Claim</a>' : '') + '</span></div>';
             }).join('') +
             '</div></details>';
         }).join('') + '</div>'
@@ -913,6 +914,42 @@
               (q.go ? '<a class="btn btn-sm btn-soft" href="#/' + q.go + '">' + q.cta + '</a>' : '') + '</div>';
           }).join('') + '</div></div>';
       }).join('') : '<div class="surface sp-empty">' + ic('gift', 18) + '<span>Buy any tea pack to get lucky numbers</span></div>') + '</div>';
+  };
+
+  /* Every win in one table: #, Date, Type, Lucky No, Amount, Status. A win not yet claimed opens the claim page. */
+  SCREENS['my-wins'] = function () {
+    var rows = [];
+    allCards().forEach(function (x) {
+      var c = x.c, q = c.submitted && cardState(c); if (!q || !q.win) return;
+      drawResults(c.drawDate).forEach(function (w) { if (c.nos.indexOf(w.no) > -1) rows.push({ c: c, w: w }); });
+    });
+    rows.sort(function (a, b) { return a.c.drawDate < b.c.drawDate ? 1 : -1; });
+    function st(c) { return !c.claimed ? ['Claim', ''] : Date.now() - c.claimed.ts >= 864e5 ? ['Received', 'ok'] : ['Claimed', 'plain']; }
+    return topbar('My wins', 'draw') + '<div class="pad tea-page">' +
+      (rows.length ? '<div class="otable"><div class="wn-row ot-h"><span>#</span><span>Date</span><span>Type</span><span>Lucky No</span><span>Amount</span><span>Status</span></div>' +
+        rows.map(function (r, i) {
+          var s = st(r.c), d = new Date(r.c.drawDate + 'T12:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+          return '<a class="wn-row wn-item" href="#/claim/' + r.c.id + '"><span>' + (rows.length - i) + '</span><span>' + d + '</span><span>Tea</span><span>' + esc(r.w.no) + '</span><span>' + inr(r.w.amount) + '</span>' +
+            '<span><span class="badge ' + s[1] + (s[0] === 'Claim' ? ' warn' : '') + '">' + s[0] + '</span></span></a>';
+        }).join('') + '</div>'
+        : '<div class="surface sp-empty">' + ic('crown', 18) + '<span>No wins yet. Your luck is coming</span></div>') + '</div>';
+  };
+
+  /* Claim a win: one page, a ready-made message with User ID, Invoice No and Lucky No, Submit at the bottom */
+  SCREENS.claim = function (cid) {
+    var x = cardById(cid), q = x && cardState(x.c);
+    if (!x || !q || !q.win) return SCREENS['tea-orders']();
+    var c = x.c, done = !!c.claimed, lucky = q.wn.join(', ');
+    var rows = [['User ID', BC_MEMBER.id], ['Invoice No', x.o.id], ['Lucky No', lucky]];
+    return '<div class="flow tea-page">' + topbar('Claim your prize', 'tea-orders') + '<div class="pad">' +
+      '<div class="cl-hero">' + ic('crown', 26) + '<span>You won</span><b>' + inr(q.amount) + '</b></div>' +
+      '<div class="field-l">Your claim</div>' +
+      '<div class="surface cl-msg"><p>Hello Boche, I won the Lucky Draw and would like to claim my prize.</p>' +
+        rows.map(function (r) { return '<div class="kv"><span>' + r[0] + '</span><span>' + esc(r[1]) + '</span></div>'; }).join('') + '</div>' +
+      (done ? '<div class="cl-done">' + ic('check', 16) + '<span>Claim submitted · ref ' + esc(c.claimed.ref) + '. We’ll verify and pay you within 24 hours.</span></div>'
+        : '<p class="cl-note">Details are filled in for you. Just submit.</p>') +
+      '</div><div class="sticky-cta">' + (done ? '<button class="btn btn-soft" data-go="tea-orders">Back to orders</button>'
+        : '<button class="btn btn-gold" data-act="claimSubmit" data-id="' + c.id + '">Submit claim</button>') + '</div></div>';
   };
 
   SCREENS.tea = function () {
@@ -1918,23 +1955,17 @@
       }, 550);
     },
     /* Claim a Lucky Draw win: confirm payout account → paid (prototype: nothing is really sent) */
-    claimPrize: function (el) {
-      var x = cardById(el.dataset.id); if (!x) return;
-      var q = cardState(x.c); if (!q.claim) return;
-      openSheet('<h3>Claim ' + inr(q.amount) + '</h3><p class="lead">Lucky Draw win · ' + esc(q.wn.join(', ')) + '</p>' +
-        '<div class="gp-bank" style="margin-top:14px"><span class="gp-bk">' + ic('shield', 16) + '</span><div><b>HDFC Bank ••4321</b><span>Prize is paid here within 24 hours</span></div></div>' +
-        '<button class="btn btn-gold mt16" data-act="claimConfirm" data-id="' + x.c.id + '">' + ic('gift', 18) + 'Claim ' + inr(q.amount) + '</button>' +
-        '<button class="btn-text" data-act="closeSheet">Not now</button>');
-    },
-    claimConfirm: function (el) {
-      var x = cardById(el.dataset.id); if (!x) return;
-      var q = cardState(x.c);
+    claimPrize: function (el) { go('claim/' + el.dataset.id); },
+    claimSubmit: function (el) {
+      var x = cardById(el.dataset.id); if (!x || x.c.claimed) return;
+      var q = cardState(x.c); if (!q.win) return;
       ui.sheetLock = true;
-      openSheet('<h3>Claiming ' + inr(q.amount) + '</h3><p class="lead">Lucky Draw prize</p><ul class="steps" id="claimSteps">' +
-        ['Verifying your winning number', 'Sending to HDFC Bank ••4321', 'Prize on its way'].map(function (s) { return '<li><span class="st"></span>' + esc(s) + '</li>'; }).join('') + '</ul>');
+      openSheet('<h3>Submitting your claim</h3><ul class="steps" id="claimSteps">' +
+        ['Sending your details', 'Verifying your lucky number', 'Claim received'].map(function (s) { return '<li><span class="st"></span>' + esc(s) + '</li>'; }).join('') + '</ul>');
       runSteps($('claimSteps').children, function () {
-        ui.sheetLock = false; x.c.claimed = { ts: Date.now(), amount: q.amount }; save(); closeSheet(); rerender(); toast(inr(q.amount) + ' claimed · arrives within 24 hours');
-      }, 650);
+        ui.sheetLock = false; x.c.claimed = { ts: Date.now(), amount: q.amount, ref: 'CLM-' + Math.floor(100000 + Math.random() * 899999) };
+        save(); closeSheet(); rerender(); toast('Claim submitted');
+      }, 600);
     },
     drawNow: function () { drawResults(dayKey(), true); rerender(); },
     grvNew: function () { ui.grv = { biz: null, text: '', files: [], focusText: false }; go('grievance'); },
@@ -2053,9 +2084,9 @@
   var MEMBER_PUBLIC = { welcome: 1, login: 1, otp: 1 };
   var STAFF_PUBLIC = { staff: 1, 'staff-otp': 1 };
   var STAFF_APP = { scan: 1, verify: 1 };
-  var TABS = { home: 1, explore: 1, card: 1, activity: 1, profile: 1, tea: 1, 'tea-orders': 1, 'my-numbers': 1, draw: 1, scratch: 1, 'tea-done': 1 };
+  var TABS = { home: 1, explore: 1, card: 1, activity: 1, profile: 1, tea: 1, 'tea-orders': 1, 'my-numbers': 1, 'my-wins': 1, draw: 1, scratch: 1, 'tea-done': 1 };
   /* Tea screens keep the bottom bar (checkout steps don't, they have their own pay bar); Explore is their home tab */
-  var TAB_OF = { tea: 'home', 'tea-orders': 'home', 'my-numbers': 'home', draw: 'home', scratch: 'home', 'tea-done': 'home' };
+  var TAB_OF = { tea: 'home', 'tea-orders': 'home', draw: 'draw', 'my-numbers': 'draw', 'my-wins': 'draw', scratch: 'draw', 'tea-done': 'home' };
   var timers = [];
   function clearTimers() { timers.forEach(function (t) { clearInterval(t); clearTimeout(t); }); timers = []; }
   function parse() { var p = (location.hash || '').replace(/^#\/?/, '').split('/'); return { name: p[0] || '', arg: decodeURIComponent(p[1] || '') }; }
@@ -2096,7 +2127,7 @@
   function rerender() { clearTimers(); render(true); }
 
   function renderTabs(active) {
-    var items = [['home', 'Home', 'home'], ['explore', 'Explore', 'pin'], ['card', 'Card', 'qr'], ['activity', 'Activity', 'receipt'], ['profile', 'Profile', 'user']];
+    var items = [['home', 'Home', 'home'], ['draw', 'Lucky Draw', 'crown'], ['card', 'Card', 'qr'], ['activity', 'Activity', 'receipt'], ['profile', 'Profile', 'user']];
     $('tabbar').innerHTML = items.map(function (t) {
       var on = active === t[0] ? ' on' : '';
       if (t[0] === 'card') return '<button class="tab tab-card' + on + '" data-go="card"><span class="fab">' + ic('qr', 26) + '</span><span>Card</span></button>';
