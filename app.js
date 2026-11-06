@@ -10,7 +10,9 @@
      Shared data (members, points, vouchers…) lives in localStorage so the member app and
      the Business Admin module, even in two tabs, see the same world.
      Session (who is signed in on THIS tab) lives in sessionStorage. */
-  var LS_KEY = 'bocheclub-shared-v3', SS_KEY = 'bocheclub-session-v3', DEV_KEY = 'bocheclub-device';
+  var LS_KEY = 'bocheclub-shared-v4', SS_KEY = 'bocheclub-session-v4', DEV_KEY = 'bocheclub-device';
+  /* One-time clean start: drop the old saved orders, draw entries, claims and profile edits */
+  try { localStorage.removeItem('bocheclub-shared-v3'); sessionStorage.removeItem('bocheclub-session-v3'); } catch (e) {}
 
   function freshShared() {
     var members = {};
@@ -1552,7 +1554,7 @@
           '<div class="li-t mt8">' + esc(v.title) + '</div><div class="code">' + esc(v.code) + '</div><div class="li-s">Issued ' + esc(v.date) + '</div></div>';
       }).join('') : '<div class="surface center" style="padding:28px 16px"><div class="li-ic" style="margin:0 auto 10px">' + ic('gift', 18) + '</div><div class="li-t">No vouchers yet</div><div class="li-s">Redeem a reward in any business.</div></div>') + '</div>';
     }
-    return topbar('Activity', '') + '<div class="pad"><div class="seg">' +
+    return topbar('Activity', 'profile') + '<div class="pad"><div class="seg">' +
       [['points', 'Points'], ['checkins', 'Check-ins'], ['vouchers', 'Vouchers']].map(function (t) { return '<button class="' + (tab === t[0] ? 'on' : '') + '" data-act="actTab" data-id="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' + body + '</div>';
   };
 
@@ -1602,7 +1604,7 @@
     return topbar('Profile', '') +
       '<div class="prof-head"><button class="avatar-btn" data-act="photoPick" aria-label="Change photo">' + avatarHtml() + '<span class="av-cam">' + ic('plus', 12) + '</span></button><input type="file" id="photoIn" accept="image/*" hidden><div><div class="prof-name">' + esc(BC_MEMBER.name) + '</div>' +
       '<div class="li-s">' + esc(BC_MEMBER.id) + '</div><span class="badge mt8">' + ic('crown', 12) + esc(t.name) + ' member</span></div></div>' +
-      '<div class="pad"><div class="field-l" style="margin-top:0">Account</div><div class="list">' +
+      '<div class="pad"><div class="list">' + row('receipt', 'Activity', 'Points, bills and visits', 'data-go="activity"') + '</div><div class="field-l">Account</div><div class="list">' +
       row('phone', '+91 ' + esc(BC_MEMBER.mobile), 'Mobile · SIM verified on this phone', 'disabled', '<span class="badge ok">Verified</span>') +
       row('shield', 'Trusted phones', myDevices().length + (myDevices().length === 1 ? ' phone' : ' phones') + ' · new phones need email check', 'data-act="devices"') +
       row('doc', esc(BC_MEMBER.email), 'Email', 'data-act="emailOpen"', (dyn(BC_MEMBER.id).profile || {}).emailVerified ? '<span class="badge ok">Verified</span>' : '<span class="badge warn">Verify</span>') +
@@ -2086,7 +2088,7 @@
   var STAFF_APP = { scan: 1, verify: 1 };
   var TABS = { home: 1, explore: 1, card: 1, activity: 1, profile: 1, tea: 1, 'tea-orders': 1, 'my-numbers': 1, 'my-wins': 1, draw: 1, scratch: 1, 'tea-done': 1 };
   /* Tea screens keep the bottom bar (checkout steps don't, they have their own pay bar); Explore is their home tab */
-  var TAB_OF = { tea: 'home', 'tea-orders': 'home', draw: 'draw', 'my-numbers': 'draw', 'my-wins': 'draw', scratch: 'draw', 'tea-done': 'home' };
+  var TAB_OF = { tea: 'home', 'tea-orders': 'home', draw: 'draw', 'my-numbers': 'draw', 'my-wins': 'draw', activity: 'profile', scratch: 'draw', 'tea-done': 'home' };
   var timers = [];
   function clearTimers() { timers.forEach(function (t) { clearInterval(t); clearTimeout(t); }); timers = []; }
   function parse() { var p = (location.hash || '').replace(/^#\/?/, '').split('/'); return { name: p[0] || '', arg: decodeURIComponent(p[1] || '') }; }
@@ -2127,7 +2129,7 @@
   function rerender() { clearTimers(); render(true); }
 
   function renderTabs(active) {
-    var items = [['home', 'Home', 'home'], ['draw', 'Lucky Draw', 'crown'], ['card', 'Card', 'qr'], ['activity', 'Activity', 'receipt'], ['profile', 'Profile', 'user']];
+    var items = [['home', 'Home', 'home'], ['draw', 'Lucky Draw', 'crown'], ['card', 'Card', 'qr'], ['explore', 'Explore', 'pin'], ['profile', 'Profile', 'user']];
     $('tabbar').innerHTML = items.map(function (t) {
       var on = active === t[0] ? ' on' : '';
       if (t[0] === 'card') return '<button class="tab tab-card' + on + '" data-go="card"><span class="fab">' + ic('qr', 26) + '</span><span>Card</span></button>';
